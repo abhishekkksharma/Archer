@@ -1,8 +1,6 @@
-import mongoose from "mongoose";
+import "dotenv/config";
 import app from "./app";
-import loadEnv from "./utils/load-env";
-
-loadEnv();
+import { connectToMongoDB } from "./connect.mongodb";
 
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -12,7 +10,7 @@ const startServer = async () => {
     throw new Error("MONGODB_URI is not defined");
   }
 
-  await mongoose.connect(MONGODB_URI);
+  await connectToMongoDB(MONGODB_URI);
 
   app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
