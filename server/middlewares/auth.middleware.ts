@@ -28,16 +28,17 @@ class AuthMiddleware {
         return;
       }
 
-      // Expected format: Bearer <token>
-      const [scheme, token] = authHeader.split(" ");
+      const bearerMatch = authHeader.match(/^Bearer\s+(.+)$/i);
 
-      if (scheme !== "Bearer" || !token) {
+      if (!bearerMatch?.[1]) {
         res.status(401).json({
           success: false,
           message: "Invalid authorization format. Use: Bearer <token>",
         });
         return;
       }
+
+      const token = bearerMatch[1].replace(/\s/g, "");
 
       // Check JWT secret
       const jwtSecret = process.env.JWT_SECRET;

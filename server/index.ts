@@ -1,23 +1,16 @@
-import "dotenv/config";
-import app from "./app";
+import "dotenv/config"; 
+import app from "./app"; 
 import { connectToMongoDB } from "./connect.mongodb";
 
-const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI;
+const PORT = Number(process.env.PORT) || 5000;
+const MONGODB_URI: string = process.env.MONGODB_URI as string;
 
-const startServer = async () => {
-  if (!MONGODB_URI) {
-    throw new Error("MONGODB_URI is not defined");
-  }
-
-  await connectToMongoDB(MONGODB_URI);
-
-  app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-  });
-};
-
-startServer().catch((error) => {
-  console.error("Failed to start server:", error);
-  process.exit(1);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
+
+connectToMongoDB(MONGODB_URI).then(() => {
+  console.log("MongoDB connected!");
+});
+
+export {};
