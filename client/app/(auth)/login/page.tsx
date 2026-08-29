@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
 import { usePopup } from "@/components/Popup/PopupContext";
+import { useUser } from "@/context/UserContext";
 import { Eye, EyeOff } from "lucide-react";
 import Logo from "../../../public/logoSVG.png"
 import Image from "next/image";
@@ -14,6 +15,7 @@ import backgroundImage from "@/assets/ProfileIcons/Midnight Teal to Mint Glow.pn
 function LoginPage() {
   const router = useRouter();
   const { showPopup } = usePopup();
+  const { refetchUser } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -55,6 +57,7 @@ function LoginPage() {
       if (response.ok && data.success) {
         // Save token to cookies
         document.cookie = `token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
+        await refetchUser();
         showPopup("Login successful! Welcome back.", "success");
         router.push("/");
       } else {
@@ -83,6 +86,7 @@ function LoginPage() {
 
       if (response.ok && data.success) {
         document.cookie = `token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
+        await refetchUser();
         showPopup("Google authentication successful!", "success");
         router.push("/");
       } else {

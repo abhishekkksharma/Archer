@@ -3,6 +3,7 @@ import { promisify } from "node:util";
 import { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
 import User, { type UserDocument, type UserI } from "../models/user.model";
+import { Project } from "../models/project.model";
 import type { AuthRequest } from "../middlewares/auth.middleware";
 
 const scrypt = promisify(scryptCallback);
@@ -304,7 +305,7 @@ class AuthController {
         return;
       }
 
-      const user = await User.findById(req.user.userId).populate("projects");
+      const user = await User.findById(req.user.userId);
 
       if (!user) {
         res.status(404).json({
@@ -314,9 +315,19 @@ class AuthController {
         return;
       }
 
+      const projects = await Project.find({ userId: user._id })
+        .sort({ createdAt: -1 })
+        .populate("analysisId")
+        .populate("techStackId")
+        .populate("roadmapId")
+        .populate("architectureId");
+
+      const sanitizedUser = this.sanitizeUser(user);
+      sanitizedUser.projects = projects as any;
+
       res.status(200).json({
         success: true,
-        user: this.sanitizeUser(user),
+        user: sanitizedUser,
       });
     } catch (error) {
       console.error("Get me error:", error);

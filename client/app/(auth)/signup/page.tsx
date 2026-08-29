@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
 import { usePopup } from "@/components/Popup/PopupContext";
+import { useUser } from "@/context/UserContext";
 import { Eye, EyeOff } from "lucide-react";
 import Logo from "../../../public/logoSVG.png";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -22,6 +23,7 @@ import {
 function SignupPage() {
   const router = useRouter();
   const { showPopup } = usePopup();
+  const { refetchUser } = useUser();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -76,6 +78,7 @@ function SignupPage() {
       if (response.ok && data.success) {
         // Save token to cookies
         document.cookie = `token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
+        await refetchUser();
         showPopup("Registration successful! Welcome to Archer.", "success");
         router.push("/");
       } else {
@@ -105,6 +108,7 @@ function SignupPage() {
 
       if (response.ok && data.success) {
         document.cookie = `token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
+        await refetchUser();
         showPopup("Google authentication successful!", "success");
         router.push("/");
       } else {

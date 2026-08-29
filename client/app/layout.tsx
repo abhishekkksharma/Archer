@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PopupProvider } from "@/components/Popup/PopupContext";
+import { UserProvider } from "@/context/UserContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const geistSans = Geist({
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <GoogleOAuthProvider clientId={googleClientId}>
-          <PopupProvider>{children}</PopupProvider>
+          <UserProvider>
+            <PopupProvider>{children}</PopupProvider>
+          </UserProvider>
         </GoogleOAuthProvider>
       </body>
     </html>

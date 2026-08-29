@@ -7,8 +7,16 @@ import Link from "next/link";
 import ThemeToggle from "../ThemeToggle";
 import ProfileButton from "./ProfileButton";
 
-function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
+interface NavbarProps {
+  theme?: "light" | "dark";
+}
+
+function Navbar({ theme }: NavbarProps = {}) {
+  const [scrolled, setScrolled] = useState(() => {
+    if (theme === "light") return true;
+    if (theme === "dark") return false;
+    return false;
+  });
 
   const links = [
     {
@@ -26,6 +34,15 @@ function Navbar() {
   ];
 
   useEffect(() => {
+    if (theme === "light") {
+      setScrolled(true);
+      return;
+    }
+    if (theme === "dark") {
+      setScrolled(false);
+      return;
+    }
+
     const handleScroll = () => {
       const halfScreen = window.innerHeight / 2;
       setScrolled(window.scrollY > halfScreen);
@@ -38,7 +55,7 @@ function Navbar() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [theme]);
 
   return (
     <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between px-6 py-4 md:px-12 lg:px-20">

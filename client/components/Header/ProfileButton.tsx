@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { googleLogout } from "@react-oauth/google";
 import { ChevronDown, LayoutDashboard, LogOut } from "lucide-react";
+import { useUser } from "@/context/UserContext";
 
 import {
   Avatar1,
@@ -13,13 +13,6 @@ import {
   Avatar4,
   Avatar5,
 } from "@/assets/ProfileIcons/avatars";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar: "avatar1" | "avatar2" | "avatar3" | "avatar4" | "avatar5";
-}
 
 const avatarMap = {
   avatar1: Avatar1,
@@ -34,61 +27,8 @@ interface ProfileButtonProps {
 }
 
 function ProfileButton({ scrolled }: ProfileButtonProps) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading, logout } = useUser();
   const [isOpen, setIsOpen] = useState(false);
-
-  const getCookie = (name: string): string | null => {
-    if (typeof window === "undefined") return null;
-
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-
-    if (parts.length === 2) {
-      return parts.pop()?.split(";").shift() || null;
-    }
-
-    return null;
-  };
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token =
-          getCookie("token") ||
-          getCookie("auth_token") ||
-          getCookie("jwt");
-
-        if (!token) return;
-
-        const backendUrl =
-          process.env.NEXT_PUBLIC_BACKEND_URL ||
-          "http://localhost:5000/api";
-
-        const response = await fetch(`${backendUrl}/auth/me`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-
-          if (data.success && data.user) {
-            setUser(data.user);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -105,19 +45,8 @@ function ProfileButton({ scrolled }: ProfileButtonProps) {
   }, [isOpen]);
 
   const handleLogout = () => {
-    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    document.cookie = "jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    
-    try {
-      googleLogout();
-    } catch (e) {
-      console.error(e);
-    }
-    
-    setUser(null);
     setIsOpen(false);
-    window.location.href = "/";
+    logout();
   };
 
   // Loading state
