@@ -59,7 +59,7 @@ function LoginPage() {
         document.cookie = `token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
         await refetchUser();
         showPopup("Login successful! Welcome back.", "success");
-        router.push("/");
+        router.push("/dashboard");
       } else {
         showPopup(data.message || "Invalid credentials", "error");
       }
@@ -88,7 +88,7 @@ function LoginPage() {
         document.cookie = `token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
         await refetchUser();
         showPopup("Google authentication successful!", "success");
-        router.push("/");
+        router.push("/dashboard");
       } else {
         showPopup(data.message || "Google auth failed", "error");
       }

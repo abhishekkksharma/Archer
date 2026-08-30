@@ -80,7 +80,7 @@ function SignupPage() {
         document.cookie = `token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
         await refetchUser();
         showPopup("Registration successful! Welcome to Archer.", "success");
-        router.push("/");
+        router.push("/dashboard");
       } else {
         showPopup(data.message || "Failed to register user", "error");
       }

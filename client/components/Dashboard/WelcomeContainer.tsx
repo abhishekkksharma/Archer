@@ -2,13 +2,14 @@
 
 import { useUser } from "@/context/UserContext";
 import { Folder, CircleCheckBig, TrafficCone } from "lucide-react";
+import AuthWarning from "../AuthWarning";
 
 function WelcomeContainer() {
   const { user, loading } = useUser();
   const projects = user?.projects;
 
   if (loading) return <p>Loading...</p>;
-  if (!user) return <p>Please log in</p>;
+  if (!user) return <AuthWarning/>;
 
   return (
     <div className="px-6 sm:px-8 md:px-[8%] lg:px-[10%] mt-18 flex flex-col gap-4 py-8 pb-2 border-t border-zinc-200 dark:border-zinc-800">
