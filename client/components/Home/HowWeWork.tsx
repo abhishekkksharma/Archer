@@ -33,7 +33,7 @@ function HowWeWork() {
     },
   ];
   return (
-    <section className="bg-white px-5 py-20 dark:bg-black sm:px-8 sm:py-24 md:px-12 md:py-28 lg:px-20 dark:lg:pt-40">
+    <section className="bg-white px-5 py-20 dark:bg-black sm:px-8 sm:py-24 md:px-12 md:py-28 lg:px-20 ">
       {/* Top Navigation / Heading */}
       <div className="mx-auto max-w-7xl">
         <div className="px-1 sm:px-2">
@@ -79,7 +79,7 @@ function HowWeWork() {
           </div>
         </div>
 
-        <section className="w-full bg-white px-4 py-12 my-16 dark:bg-black sm:px-6 sm:py-16 lg:px-10 lg:py-30">
+        <section className="w-full bg-white px-4 py-12 my-16 dark:bg-black sm:px-6 sm:py-16 lg:px-10 lg:py-20">
           <div className="mx-auto max-w-6xl">
             <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
               {steps.map((item) => {
