@@ -1,6 +1,7 @@
 import { Response } from "express";
 import mongoose from "mongoose";
 import { Project } from "../models/project.model";
+import { TechStack } from "../models/techStack.model";
 import User from "../models/user.model";
 import type { AuthRequest } from "../middlewares/auth.middleware";
 
@@ -29,6 +30,7 @@ class ProjectsController {
         progress,
         analysisId,
         techStackId,
+        techStack,
         roadmapId,
         architectureId,
       } = req.body;
@@ -46,15 +48,59 @@ class ProjectsController {
         userId,
         name,
         description,
-        type,
-        experienceLevel,
-        status,
-        progress,
+        type: type || "Web Application",
+        experienceLevel: experienceLevel || "Beginner",
+        status: status || "Planning",
+        progress: progress || 0,
         analysisId,
         techStackId,
         roadmapId,
         architectureId,
       });
+
+      // If techStack data is provided in request, save TechStack model
+      if (techStack && typeof techStack === "object") {
+        const sanitizeItems = (items: any[]) => {
+          if (!Array.isArray(items)) return [];
+          return items
+            .filter((item) => item && (item.name || typeof item === "string"))
+            .map((item) => {
+              if (typeof item === "string") {
+                return {
+                  name: item,
+                  description: item,
+                  reason: "Selected for application stack",
+                  alternatives: [],
+                };
+              }
+              return {
+                name: item.name,
+                description: item.description || item.name || "Tech stack component",
+                reason: item.reason || "Selected for application stack",
+                alternatives: Array.isArray(item.alternatives)
+                  ? item.alternatives
+                  : typeof item.alternatives === "string"
+                  ? item.alternatives
+                      .split(",")
+                      .map((s: string) => s.trim())
+                      .filter(Boolean)
+                  : [],
+              };
+            });
+        };
+
+        const newTechStack = await TechStack.create({
+          projectId: project._id,
+          frontend: sanitizeItems(techStack.frontend),
+          backend: sanitizeItems(techStack.backend),
+          database: sanitizeItems(techStack.database),
+          authentication: sanitizeItems(techStack.authentication),
+          otherServices: sanitizeItems(techStack.otherServices),
+        });
+
+        project.techStackId = newTechStack._id as any;
+        await project.save();
+      }
 
       // Add project ID to user's projects array
       const user = await User.findByIdAndUpdate(
@@ -79,10 +125,12 @@ class ProjectsController {
         });
       }
 
+      const populatedProject = await Project.findById(project._id).populate("techStackId");
+
       return res.status(201).json({
         success: true,
         message: "Project created successfully",
-        project,
+        project: populatedProject || project,
       });
     } catch (error) {
       console.error("Add project error:", error);
