@@ -1,12 +1,14 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IRoadmapPhase {
+  _id?: mongoose.Types.ObjectId | string;
   phaseNumber: number;
   title: string;
   description: string;
   difficulty: "easy" | "medium" | "hard";
   order: number;
   tasks: {
+    _id?: mongoose.Types.ObjectId | string;
     title: string;
     description: string;
     order: number;

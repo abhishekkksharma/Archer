@@ -20,15 +20,36 @@ export const metadata: Metadata = {
   description: "",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var savedTheme = localStorage.getItem('theme');
+                  if (savedTheme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  } else if (savedTheme === 'light') {
+                    document.documentElement.classList.remove('dark');
+                  } else {
+                    document.documentElement.classList.add('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
         <GoogleOAuthProvider clientId={googleClientId}>
           <UserProvider>
             <PopupProvider>{children}</PopupProvider>
@@ -38,3 +59,4 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     </html>
   );
 }
+

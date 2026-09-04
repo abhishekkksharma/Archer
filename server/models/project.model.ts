@@ -15,6 +15,7 @@ export interface IProject extends Document {
   techStackId?: mongoose.Types.ObjectId;
   roadmapId?: mongoose.Types.ObjectId;
   architectureId?: mongoose.Types.ObjectId;
+  projectLiveLink:string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -72,6 +73,10 @@ const projectSchema = new Schema<IProject>(
       type: Schema.Types.ObjectId,
       ref: "Architecture",
     },
+    projectLiveLink:{
+      type: String,
+      default:""
+    }
   },
   {
     timestamps: true,

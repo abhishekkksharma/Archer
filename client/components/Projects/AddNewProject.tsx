@@ -417,11 +417,11 @@ function AddNewProject() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-3xl flex-col justify-center">
+    <div className="bg-zinc-50 dark:bg-black px-4 py-10 sm:px-6 lg:px-8 border-t border-zinc-200 dark:border-zinc-800">
+      <div className="mx-auto flex w-full max-w-3xl flex-col justify-center">
         {/* STEP INDICATOR */}
         <div className="mb-7 flex items-center justify-center">
-          <div className="flex items-center border border-zinc-200 bg-white px-3 py-2 dark:border-zinc-800 dark:bg-black">
+          <div className="flex items-center border rounded-lg border-zinc-200 bg-white px-3 py-2 dark:border-zinc-800 dark:bg-black">
             {steps.map((step, idx) => (
               <React.Fragment key={step.number}>
                 <div className="flex items-center gap-2">

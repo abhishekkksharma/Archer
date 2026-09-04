@@ -2,6 +2,8 @@ import express, { type Request, type Response } from "express";
 import cors from "cors";
 import authRouter from "./routes/auth.route";
 import projectsRouter from "./routes/project.route";
+import roadmapRouter from "./routes/roadmap.route";
+import tasksRouter from "./routes/tasks.route";
 
 const app = express();
 
@@ -13,7 +15,9 @@ app.use(cors({
 }));
 
 app.use("/api/auth", authRouter);
-app.use('/api/project',projectsRouter)
+app.use("/api/project", projectsRouter);
+app.use("/api/roadmaps", roadmapRouter);
+app.use("/api/tasks", tasksRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.json({

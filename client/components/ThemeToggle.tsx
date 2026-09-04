@@ -13,19 +13,18 @@ function ThemeToggle({ scrolled }: ThemeToggleProps) {
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
+    const hasDarkClass = document.documentElement.classList.contains("dark");
 
-    if (savedTheme === "dark") {
+    if (savedTheme === "dark" || (!savedTheme && hasDarkClass)) {
       setIsDark(true);
       document.documentElement.classList.add("dark");
-    } else {
-      // Default to light theme
+    } else if (savedTheme === "light") {
       setIsDark(false);
       document.documentElement.classList.remove("dark");
-
-      // Save light as the default
-      if (!savedTheme) {
-        localStorage.setItem("theme", "light");
-      }
+    } else {
+      setIsDark(true);
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
     }
 
     setMounted(true);
