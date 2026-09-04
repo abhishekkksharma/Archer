@@ -3,11 +3,15 @@ import { roadmapController } from "../controllers/roadmap.controller";
 
 const router = Router();
 
+router.post("/generate", roadmapController.generateRoadmap);
+router.post("/project/:projectId/generate", roadmapController.generateRoadmap);
 router.post("/", roadmapController.createRoadmap);
+
 router.get("/", roadmapController.getAllRoadmaps);
 router.get("/project/:projectId", roadmapController.getRoadmapByProjectId);
 router.get("/:id/tasks", roadmapController.getRoadmapTasks);
 router.get("/:id", roadmapController.getRoadmapById);
+
 router.patch("/:id", roadmapController.updateRoadmap);
 router.delete("/:id", roadmapController.deleteRoadmap);
 

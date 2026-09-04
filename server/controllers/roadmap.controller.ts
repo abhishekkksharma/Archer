@@ -1,11 +1,14 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import { roadmapService } from "../services/roadmap.service";
+import { openRouterService } from "../services/openRouter.service";
+import { Project } from "../models/project.model";
 
 export class RoadmapController {
-  // CREATE ROADMAP
+  // CREATE ROADMAP (Generates roadmap via OpenRouter AI based on project & automatically computes statistics)
   public createRoadmap = async (req: Request, res: Response) => {
     try {
-      const { projectId, phases, statistics } = req.body;
+      const { projectId } = req.body;
 
       if (!projectId) {
         return res.status(400).json({
@@ -14,10 +17,35 @@ export class RoadmapController {
         });
       }
 
+      if (!mongoose.Types.ObjectId.isValid(projectId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid project ID format",
+        });
+      }
+
+      const project = await Project.findById(projectId).populate("techStackId");
+
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          message: "Project not found",
+        });
+      }
+
+      // Generate roadmap phases using OpenRouter AI
+      const phases = await openRouterService.generateRoadMap({
+        name: project.name,
+        description: project.description,
+        type: project.type,
+        experienceLevel: project.experienceLevel,
+        techStack: project.techStackId,
+      });
+
+      // Create roadmap document (roadmapService automatically computes statistics based on phases)
       const roadmap = await roadmapService.createRoadmap({
         projectId,
         phases,
-        statistics,
       });
 
       return res.status(201).json({
@@ -31,6 +59,63 @@ export class RoadmapController {
       return res.status(500).json({
         success: false,
         message: error.message || "Failed to create roadmap",
+      });
+    }
+  };
+
+  // GENERATE / REGENERATE ROADMAP WITH AI FOR A PROJECT
+  public generateRoadmap = async (req: Request, res: Response) => {
+    try {
+      const projectId = req.params.projectId || req.body.projectId;
+
+      if (!projectId || typeof projectId !== "string" || !mongoose.Types.ObjectId.isValid(projectId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Valid projectId is required",
+        });
+      }
+
+      const project = await Project.findById(projectId).populate("techStackId");
+
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          message: "Project not found",
+        });
+      }
+
+      // Generate AI phases using OpenRouter Service
+      const phases = await openRouterService.generateRoadMap({
+        name: project.name,
+        description: project.description,
+        type: project.type,
+        experienceLevel: project.experienceLevel,
+        techStack: project.techStackId,
+      });
+
+      // Check if a roadmap already exists for this project
+      let roadmap = await roadmapService.getRoadmapByProjectId(projectId);
+
+      if (roadmap) {
+        roadmap = await roadmapService.updateRoadmap(roadmap._id.toString(), { phases });
+      } else {
+        roadmap = await roadmapService.createRoadmap({
+          projectId,
+          phases,
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: "AI Roadmap generated successfully",
+        data: roadmap,
+      });
+    } catch (error: any) {
+      console.error("Generate AI roadmap error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Failed to generate AI roadmap",
       });
     }
   };
