@@ -120,7 +120,7 @@ export class RoadmapController {
     }
   };
 
-  // GET ROADMAP BY ID
+  // GET ROADMAP BY ID (or Project ID, auto-generating if missing)
   public getRoadmapById = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -132,7 +132,26 @@ export class RoadmapController {
         });
       }
 
-      const roadmap = await roadmapService.getRoadmapById(id);
+      let roadmap = await roadmapService.getRoadmapById(id);
+
+      if (!roadmap && mongoose.Types.ObjectId.isValid(id)) {
+        const project = await Project.findById(id).populate("techStackId");
+        if (project) {
+          console.log(`No roadmap found for project ID ${id}. Auto-generating AI roadmap...`);
+          const phases = await openRouterService.generateRoadMap({
+            name: project.name,
+            description: project.description,
+            type: project.type,
+            experienceLevel: project.experienceLevel,
+            techStack: project.techStackId,
+          });
+
+          roadmap = await roadmapService.createRoadmap({
+            projectId: id,
+            phases,
+          });
+        }
+      }
 
       if (!roadmap) {
         return res.status(404).json({
@@ -155,19 +174,38 @@ export class RoadmapController {
     }
   };
 
-  // GET ROADMAP BY PROJECT ID
+  // GET ROADMAP BY PROJECT ID (auto-generating if missing)
   public getRoadmapByProjectId = async (req: Request, res: Response) => {
     try {
       const { projectId } = req.params;
 
-      if (!projectId || typeof projectId !== "string") {
+      if (!projectId || typeof projectId !== "string" || !mongoose.Types.ObjectId.isValid(projectId)) {
         return res.status(400).json({
           success: false,
           message: "Invalid or missing project ID",
         });
       }
 
-      const roadmap = await roadmapService.getRoadmapByProjectId(projectId);
+      let roadmap = await roadmapService.getRoadmapByProjectId(projectId);
+
+      if (!roadmap) {
+        const project = await Project.findById(projectId).populate("techStackId");
+        if (project) {
+          console.log(`No roadmap found for project ${projectId}. Auto-generating AI roadmap...`);
+          const phases = await openRouterService.generateRoadMap({
+            name: project.name,
+            description: project.description,
+            type: project.type,
+            experienceLevel: project.experienceLevel,
+            techStack: project.techStackId,
+          });
+
+          roadmap = await roadmapService.createRoadmap({
+            projectId,
+            phases,
+          });
+        }
+      }
 
       if (!roadmap) {
         return res.status(404).json({

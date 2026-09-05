@@ -274,6 +274,7 @@ class ProjectsController {
         techStackId,
         roadmapId,
         architectureId,
+        projectLiveLink
       } = req.body;
 
       // Only update fields that were provided
@@ -291,6 +292,7 @@ class ProjectsController {
       if (roadmapId !== undefined) updateData.roadmapId = roadmapId;
       if (architectureId !== undefined)
         updateData.architectureId = architectureId;
+      if(projectLiveLink!==undefined) updateData.projectLiveLink = projectLiveLink;
 
       const project = await Project.findOneAndUpdate(
         {

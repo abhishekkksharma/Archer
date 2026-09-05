@@ -36,7 +36,7 @@ interface IProject {
   createdAt?: string;
   link?: string;
   demoUrl?: string;
-  liveUrl?: string;
+  projectLiveLink?: string;
 }
 
 function getCookie(name: string): string | null {
@@ -199,7 +199,7 @@ export default function ProjectDashboardPage() {
   const progress = project?.progress ?? 0;
   const projectType = project?.type || "Web Application";
   const experienceLevel = project?.experienceLevel || "Beginner";
-  const projectLink = project?.link || project?.demoUrl || project?.liveUrl || "https://knowmo.vercel.app/";
+  const projectLink = project?.projectLiveLink;
 
   // Keep progress between 0 and 100
   const clampedProgress = Math.min(
