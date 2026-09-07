@@ -26,7 +26,9 @@ class OpenRouterService {
     try {
       return JSON.parse(cleaned);
     } catch (firstError) {
-      console.warn("Standard JSON parse failed, attempting truncation repair...");
+      console.warn(
+        "Standard JSON parse failed, attempting truncation repair...",
+      );
 
       let str = cleaned;
 
@@ -40,8 +42,10 @@ class OpenRouterService {
       str = str.replace(/,\s*$/, "").replace(/,\s*"[^"]*"?\s*:?\s*$/, "");
 
       // 3. Balance missing closing brackets & braces
-      const openBrackets = (str.match(/\[/g) || []).length - (str.match(/\]/g) || []).length;
-      const openBraces = (str.match(/\{/g) || []).length - (str.match(/\}/g) || []).length;
+      const openBrackets =
+        (str.match(/\[/g) || []).length - (str.match(/\]/g) || []).length;
+      const openBraces =
+        (str.match(/\{/g) || []).length - (str.match(/\}/g) || []).length;
 
       for (let i = 0; i < openBraces; i++) str += "}";
       for (let i = 0; i < openBrackets; i++) str += "]";
@@ -50,7 +54,9 @@ class OpenRouterService {
         return JSON.parse(str);
       } catch (repairError) {
         // Fallback: extract any fully closed phase objects using regex
-        const phaseMatches = cleaned.match(/\{\s*"phaseNumber"[\s\S]*?\}(?=\s*,\s*\{|\s*\])/g);
+        const phaseMatches = cleaned.match(
+          /\{\s*"phaseNumber"[\s\S]*?\}(?=\s*,\s*\{|\s*\])/g,
+        );
         if (phaseMatches && phaseMatches.length > 0) {
           const fallbackJson = `{"phases": [${phaseMatches.join(",")}]}`;
           try {
@@ -65,7 +71,7 @@ class OpenRouterService {
   }
 
   public async generateRoadMap(
-    info: GenerateRoadmapInput | string
+    info: GenerateRoadmapInput | string,
   ): Promise<IRoadmapPhase[]> {
     const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
@@ -84,10 +90,11 @@ Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not spe
 `;
 
     const systemPrompt = OPENROUTER_PROMPTS.generateRoadmapSystemPrompt;
-    const userPrompt = OPENROUTER_PROMPTS.generateRoadmapUserPrompt(projectDetails);
+    const userPrompt =
+      OPENROUTER_PROMPTS.generateRoadmapUserPrompt(projectDetails);
 
-    const maxTokens = Number(process.env.OPENROUTER_MAX_TOKENS) || 2500;
-    const model = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
+    const maxTokens = Number(process.env.OPENROUTER_MAX_TOKENS) || 3000;
+    const model = process.env.OPENROUTER_MODEL || "openrouter/free";
 
     const response = await fetch(this.baseUrl, {
       method: "POST",
@@ -112,7 +119,9 @@ Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not spe
     if (!response.ok) {
       const errorText = await response.text();
       console.error("OpenRouter API Error:", response.status, errorText);
-      throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
+      throw new Error(
+        `OpenRouter API error (${response.status}): ${errorText}`,
+      );
     }
 
     const data = await response.json();
@@ -127,8 +136,8 @@ Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not spe
       const phases = Array.isArray(parsed.phases)
         ? parsed.phases
         : Array.isArray(parsed)
-        ? parsed
-        : [];
+          ? parsed
+          : [];
 
       if (!phases || phases.length === 0) {
         throw new Error("AI returned empty phases array");
@@ -168,7 +177,9 @@ Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not spe
       }));
     } catch (err: any) {
       console.error("Failed to parse AI JSON response:", content);
-      throw new Error(`Failed to parse AI response into roadmap format: ${err.message}`);
+      throw new Error(
+        `Failed to parse AI response into roadmap format: ${err.message}`,
+      );
     }
   }
 }

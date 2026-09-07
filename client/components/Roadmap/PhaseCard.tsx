@@ -45,173 +45,153 @@ export const PhaseCard: React.FC<PhaseCardProps> = ({
 
   const tasks = phase.tasks || [];
   const visibleTasks = isExpanded ? tasks : tasks.slice(0, 3);
-  const hiddenCount = tasks.length - 3;
+  const hiddenCount = Math.max(tasks.length - 3, 0);
 
-  const phaseCompletedCount = tasks.filter((t) => t.status === "completed").length;
-  const phaseProgressPct =
-    tasks.length > 0 ? Math.round((phaseCompletedCount / tasks.length) * 100) : 0;
+  const completed = tasks.filter((t) => t.status === "completed").length;
+  const progress = tasks.length
+    ? Math.round((completed / tasks.length) * 100)
+    : 0;
 
-  // Determine Phase Status
-  const phaseStatus =
-    phaseCompletedCount === tasks.length && tasks.length > 0
+  const status =
+    completed === tasks.length && tasks.length
       ? "Completed"
-      : tasks.some((t) => t.status === "in_progress" || t.status === "completed")
-      ? "In Progress"
-      : "Not Started";
+      : tasks.some((t) => ["in_progress", "completed"].includes(t.status))
+        ? "In Progress"
+        : "Not Started";
 
-  const difficulty = phase.difficulty || "medium";
+  const difficultyStyles = {
+    easy: "text-blue-600 dark:text-blue-400",
+    medium: "text-amber-600 dark:text-amber-400",
+    hard: "text-rose-600 dark:text-rose-400",
+  };
 
-  // Difficulty badge styling helper
-  const getDifficultyBadge = (diff: string) => {
-    switch (diff.toLowerCase()) {
-      case "easy":
-        return "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20";
-      case "hard":
-        return "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20";
-      default:
-        return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20";
-    }
+  const statusStyles = {
+    Completed:
+      "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+    "In Progress":
+      "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+    "Not Started":
+      "bg-zinc-100 text-zinc-500 dark:bg-zinc-800/70 dark:text-zinc-400",
   };
 
   return (
     <div
-      className={`
-        rounded-2xl border transition-all duration-300 p-5 sm:p-6 space-y-4 shadow-sm hover:shadow-md
-        ${
-          phaseStatus === "Completed"
-            ? "border-blue-500/30 bg-blue-50/20 dark:bg-blue-950/10 dark:border-blue-900/40"
-            : phaseStatus === "In Progress"
-            ? "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#0d0d10]"
-            : "border-zinc-200 dark:border-zinc-800/70 bg-white dark:bg-[#0c0c0e]"
-        }
-      `}
+      className={`rounded-xl border p-4 sm:p-5 space-y-3 transition-colors ${
+        status === "Completed"
+          ? "border-blue-500/25 bg-blue-500/[0.02]"
+          : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0d0d10]"
+      }`}
     >
-      {/* Header Row: Phase Label + Status Badge (Left), Difficulty Badge (Right) */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold tracking-wider text-zinc-400 dark:text-zinc-500 uppercase">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
             Phase {phase.phaseNumber || phaseIndex + 1}
           </span>
 
           <span
-            className={`px-2.5 py-0.5 text-[11px] font-semibold rounded-full border transition-colors ${
-              phaseStatus === "Completed"
-                ? "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30"
-                : phaseStatus === "In Progress"
-                ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
-                : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700/60"
-            }`}
+            className={`px-2 py-0.5 rounded-md text-[10px] font-medium ${statusStyles[status]}`}
           >
-            {phaseStatus}
+            {status}
           </span>
         </div>
 
-        {/* Difficulty Badge */}
         <span
-          className={`px-3 py-0.5 text-xs font-medium rounded-full border ${getDifficultyBadge(
-            difficulty
-          )}`}
+          className={`text-[11px] font-medium capitalize ${
+            difficultyStyles[phase.difficulty || "medium"]
+          }`}
         >
-          {difficulty}
+          {phase.difficulty || "medium"}
         </span>
       </div>
 
-      {/* Phase Title & Description */}
+      {/* Title */}
       <div>
-        <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white tracking-tight">
+        <h3 className="text-sm sm:text-base font-semibold text-zinc-900 dark:text-white">
           {phase.title}
         </h3>
+
         {phase.description && (
-          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
+          <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
             {phase.description}
           </p>
         )}
       </div>
 
-      {/* Task Progress Section */}
-      <div className="space-y-1.5 pt-1">
-        <div className="flex items-center justify-between text-xs font-medium text-zinc-500 dark:text-zinc-400">
+      {/* Progress */}
+      <div className="space-y-1.5">
+        <div className="flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
           <span>
-            {phaseCompletedCount} / {tasks.length} tasks completed
+            {completed}/{tasks.length} completed
           </span>
-          <span className="font-bold text-zinc-900 dark:text-white">
-            {phaseProgressPct}%
+          <span className="font-medium text-zinc-700 dark:text-zinc-300">
+            {progress}%
           </span>
         </div>
 
-        {/* Progress Bar (Minimal Blue Accent) */}
-        <div className="h-1.5 w-full bg-zinc-100 dark:bg-zinc-800/80 rounded-full overflow-hidden">
+        <div className="h-1 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
           <div
-            className={`h-full transition-all duration-500 rounded-full ${
-              phaseStatus === "Completed"
-                ? "bg-blue-500"
-                : "bg-blue-500/80 dark:bg-blue-400/80"
-            }`}
-            style={{ width: `${phaseProgressPct}%` }}
+            className="h-full rounded-full bg-blue-500 transition-all duration-500"
+            style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
-      {/* Tasks List */}
+      {/* Tasks */}
       {tasks.length > 0 && (
-        <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/50">
+        <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/70">
           <AnimatePresence initial={false}>
-            {visibleTasks.map((task, tIndex) => {
-              const isCompleted = task.status === "completed";
-              const isInProgress = task.status === "in_progress";
+            <div className="space-y-1">
+              {visibleTasks.map((task, index) => {
+                const completed = task.status === "completed";
+                const inProgress = task.status === "in_progress";
 
-              return (
-                <motion.div
-                  key={task._id || `task-${tIndex}`}
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  onClick={() => onToggleTaskStatus(phaseIndex, tIndex)}
-                  className="flex items-start gap-3 text-xs sm:text-sm cursor-pointer group transition-colors py-1"
-                >
-                  {/* Blue Task Check Icon */}
-                  <div className="mt-0.5 shrink-0">
-                    {isCompleted ? (
-                      <CheckCircle2 className="w-4 h-4 text-blue-500 dark:text-blue-400" />
-                    ) : isInProgress ? (
-                      <Clock className="w-4 h-4 text-amber-500 dark:text-amber-400" />
-                    ) : (
-                      <Circle className="w-4 h-4 text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors" />
-                    )}
-                  </div>
-
-                  <span
-                    className={`transition-all leading-snug ${
-                      isCompleted
-                        ? "line-through text-zinc-400 dark:text-zinc-500"
-                        : "text-zinc-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 font-medium"
-                    }`}
+                return (
+                  <motion.div
+                    key={task._id || `task-${index}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() =>
+                      onToggleTaskStatus(phaseIndex, index)
+                    }
+                    className="flex items-center gap-2.5 py-1 cursor-pointer group"
                   >
-                    {task.title}
-                  </span>
-                </motion.div>
-              );
-            })}
+                    {completed ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-blue-500" />
+                    ) : inProgress ? (
+                      <Clock className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+                    ) : (
+                      <Circle className="w-3.5 h-3.5 shrink-0 text-zinc-400 group-hover:text-zinc-600 dark:text-zinc-600 dark:group-hover:text-zinc-400" />
+                    )}
+
+                    <span
+                      className={`text-sm leading-snug ${
+                        completed
+                          ? "text-zinc-400 line-through"
+                          : "text-zinc-700 dark:text-zinc-300 group-hover:text-blue-500"
+                      }`}
+                    >
+                      {task.title}
+                    </span>
+                  </motion.div>
+                );
+              })}
+            </div>
           </AnimatePresence>
 
-          {/* "+N more tasks" Expand/Collapse Button */}
-          {hiddenCount > 0 && !isExpanded && (
+          {/* Expand */}
+          {hiddenCount > 0 && (
             <button
-              onClick={() => setIsExpanded(true)}
-              className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium pt-1 cursor-pointer flex items-center gap-1 transition-colors"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="mt-1 flex items-center gap-1 text-[11px] font-medium text-zinc-400 hover:text-blue-500 transition-colors"
             >
-              <span>+{hiddenCount} more tasks</span>
-              <ChevronDown className="w-3.5 h-3.5" />
-            </button>
-          )}
-
-          {isExpanded && hiddenCount > 0 && (
-            <button
-              onClick={() => setIsExpanded(false)}
-              className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium pt-1 cursor-pointer flex items-center gap-1 transition-colors"
-            >
-              <span>Show less</span>
-              <ChevronUp className="w-3.5 h-3.5" />
+              {isExpanded ? "Show less" : `+${hiddenCount} more`}
+              {isExpanded ? (
+                <ChevronUp className="w-3 h-3" />
+              ) : (
+                <ChevronDown className="w-3 h-3" />
+              )}
             </button>
           )}
         </div>

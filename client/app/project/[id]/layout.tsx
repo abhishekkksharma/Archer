@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Sidebar from "@/components/Projects/Sidebar";
 import { useUser } from "@/context/UserContext";
+import ProjectPageNavbar from "@/components/Header/ProjectPageNavbar";
 
 interface IProject {
   _id?: string;
@@ -98,6 +99,11 @@ export default function ProjectLayout({
         progress={progress}
       />
       <main className="flex-1 overflow-y-auto h-screen bg-zinc-50/50 dark:bg-black/50">
+        <ProjectPageNavbar
+          userEmail={user?.email || ""}
+          userFirstName={user?.name ? user.name.split(" ")[0] : ""}
+          projectName={projectData?.name || projectName}
+        />
         {children}
       </main>
     </div>

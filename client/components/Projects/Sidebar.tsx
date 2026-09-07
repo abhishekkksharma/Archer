@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import ProgressBar from "./ProgressBar";
 import Image from "next/image";
-import ThemeToggle from "@/components/ThemeToggle";
 
 const sidebarItems = [
   {
@@ -132,7 +131,6 @@ function Sidebar({
             Archer
           </span>
         </Link>
-        <ThemeToggle scrolled />
       </div>
 
       {/* Project Details Section */}

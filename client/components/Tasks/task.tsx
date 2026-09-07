@@ -664,6 +664,8 @@ export default function TasksComponent({
                                   font-medium
                                   rounded
                                   cursor-default
+                                  bg-gray-100
+                                  dark:bg-zinc-900
                                   ${
                                     priority === "high"
                                       ? "text-blue-600 dark:text-blue-400 bg-blue-500/10"
@@ -674,7 +676,7 @@ export default function TasksComponent({
                                   }
                                 `}
                               >
-                                {priorityLabel}
+                                <span className="text-zinc-500 dark:text-zinc-400 ">Priority: </span> {priorityLabel}
                               </span>
 
                               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-[10px] font-medium text-white bg-zinc-900 dark:bg-zinc-800 rounded-md shadow-lg opacity-0 group-hover/badge:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30 border border-zinc-700/60">
@@ -691,18 +693,12 @@ export default function TasksComponent({
                                   font-medium
                                   rounded
                                   cursor-default
-                                  ${
-                                    complexity ===
-                                    "easy"
-                                      ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
-                                      : complexity ===
-                                        "medium"
-                                      ? "text-amber-600 dark:text-amber-400 bg-amber-500/10"
-                                      : "text-rose-600 dark:text-rose-400 bg-rose-500/10"
-                                  }
+                                  bg-gray-100
+                                  dark:bg-zinc-900
+                                  
                                 `}
                               >
-                                {difficultyLabel}
+                                <span className="text-zinc-500 dark:text-zinc-400">Difficulty: </span> {difficultyLabel}
                               </span>
 
                               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-[10px] font-medium text-white bg-zinc-900 dark:bg-zinc-800 rounded-md shadow-lg opacity-0 group-hover/badge:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30 border border-zinc-700/60">
