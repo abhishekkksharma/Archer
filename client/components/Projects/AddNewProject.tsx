@@ -66,7 +66,7 @@ const EXPERIENCE_LEVELS: ExperienceLevel[] = [
 ];
 
 // Preset suggestions for quick adding
-const PRESETS: Record<TechCategory, string[]> = {
+export const PRESETS: Record<TechCategory, string[]> = {
   frontend: [
     "Next.js",
     "React",

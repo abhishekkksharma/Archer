@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { Project } from "../models/project.model";
 import { TechStack } from "../models/techStack.model";
 import User from "../models/user.model";
+import { techServices } from "../services/addTechStack.service";
 import type { AuthRequest } from "../middlewares/auth.middleware";
 
 class ProjectsController {
@@ -383,6 +384,136 @@ class ProjectsController {
       return res.status(500).json({
         success: false,
         message: "Failed to delete project",
+      });
+    }
+  };
+
+  // =========================
+  // ADD TECH STACK ITEM
+  // POST /projects/:id/tech-stack
+  // =========================
+  public addTechStack = async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      const { id } = req.params;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized",
+        });
+      }
+
+      if (
+        !id ||
+        typeof id !== "string" ||
+        !mongoose.Types.ObjectId.isValid(id)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid project ID",
+        });
+      }
+
+      const { category, name, description, reason, alternatives } = req.body;
+
+      if (!name || typeof name !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Technology name is required",
+        });
+      }
+
+      const project = await Project.findOne({ _id: id, userId });
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          message: "Project not found or unauthorized",
+        });
+      }
+
+      const updatedTechStack = await techServices.addNewTechStack(id, category || "otherServices", {
+        name,
+        description,
+        reason,
+        alternatives,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Technology added to stack successfully",
+        techStack: updatedTechStack,
+      });
+    } catch (error) {
+      console.error("Add tech stack error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to add technology to stack",
+      });
+    }
+  };
+
+  // =========================
+  // DELETE TECH STACK ITEM
+  // DELETE /projects/:id/tech-stack
+  // =========================
+  public deleteTechStack = async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      const { id } = req.params;
+      const { category, name } = req.body;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized",
+        });
+      }
+
+      if (
+        !id ||
+        typeof id !== "string" ||
+        !mongoose.Types.ObjectId.isValid(id)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid project ID",
+        });
+      }
+
+      if (!name || typeof name !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Technology name is required",
+        });
+      }
+
+      const project = await Project.findOne({ _id: id, userId });
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          message: "Project not found or unauthorized",
+        });
+      }
+
+      const updatedTechStack = await techServices.removeTechStack(
+        id,
+        category || "otherServices",
+        name
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Technology deleted from stack successfully",
+        techStack: updatedTechStack,
+      });
+    } catch (error) {
+      console.error("Delete tech stack error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to delete technology from stack",
       });
     }
   };
