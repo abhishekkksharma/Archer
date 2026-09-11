@@ -34,6 +34,10 @@ class ProjectsController {
         techStack,
         roadmapId,
         architectureId,
+        projectLiveLink,
+        liveUrl,
+        githubLink,
+        githubUrl,
       } = req.body;
 
       // Required fields
@@ -57,6 +61,8 @@ class ProjectsController {
         techStackId,
         roadmapId,
         architectureId,
+        projectLiveLink: projectLiveLink || liveUrl || "",
+        githubLink: githubLink || githubUrl || "",
       });
 
       // If techStack data is provided in request, save TechStack model
@@ -275,7 +281,10 @@ class ProjectsController {
         techStackId,
         roadmapId,
         architectureId,
-        projectLiveLink
+        projectLiveLink,
+        liveUrl,
+        githubLink,
+        githubUrl,
       } = req.body;
 
       // Only update fields that were provided
@@ -293,7 +302,10 @@ class ProjectsController {
       if (roadmapId !== undefined) updateData.roadmapId = roadmapId;
       if (architectureId !== undefined)
         updateData.architectureId = architectureId;
-      if(projectLiveLink!==undefined) updateData.projectLiveLink = projectLiveLink;
+      if (projectLiveLink !== undefined) updateData.projectLiveLink = projectLiveLink;
+      else if (liveUrl !== undefined) updateData.projectLiveLink = liveUrl;
+      if (githubLink !== undefined) updateData.githubLink = githubLink;
+      else if (githubUrl !== undefined) updateData.githubLink = githubUrl;
 
       const project = await Project.findOneAndUpdate(
         {

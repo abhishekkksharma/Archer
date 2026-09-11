@@ -4,17 +4,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 import { usePopup } from "@/components/Popup/PopupContext";
-import { Settings, Save, Trash2 } from "lucide-react";
-
-function getCookie(name: string): string | null {
-  if (typeof window === "undefined") return null;
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    return parts.pop()?.split(";").shift() || null;
-  }
-  return null;
-}
+import { Settings } from "lucide-react";
+import { getCookie } from "@/utils/cookie";
+import UpdateProject from "@/components/Settings/UpdateProject";
 
 export default function ProjectSettingsPage() {
   const params = useParams();
@@ -27,8 +19,12 @@ export default function ProjectSettingsPage() {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [type, setType] = useState("Web Application");
+  const [experienceLevel, setExperienceLevel] = useState("Beginner");
   const [status, setStatus] = useState("Planning");
   const [progress, setProgress] = useState(0);
+  const [projectLiveLink, setProjectLiveLink] = useState("");
+  const [githubLink, setGithubLink] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -37,8 +33,12 @@ export default function ProjectSettingsPage() {
     if (found) {
       setName(found.name || "");
       setDescription(found.description || "");
+      setType(found.type || "Web Application");
+      setExperienceLevel(found.experienceLevel || "Beginner");
       setStatus(found.status || "Planning");
       setProgress(found.progress ?? 0);
+      setProjectLiveLink(found.projectLiveLink || found.liveUrl || "");
+      setGithubLink(found.githubLink || found.githubUrl || "");
     }
   }, [id, user]);
 
@@ -59,21 +59,25 @@ export default function ProjectSettingsPage() {
         body: JSON.stringify({
           name,
           description,
+          type,
+          experienceLevel,
           status,
           progress: Number(progress),
+          projectLiveLink,
+          githubLink,
         }),
       });
 
       const data = await res.json();
       if (res.ok && data.success) {
-        showPopup("Project updated successfully!", "success");
+        showPopup("Project settings updated successfully!", "success");
         await refetchUser();
       } else {
-        showPopup(data.message || "Failed to update project", "error");
+        showPopup(data.message || "Failed to update project settings", "error");
       }
     } catch (err) {
       console.error(err);
-      showPopup("Failed to update project", "error");
+      showPopup("Failed to update project settings", "error");
     } finally {
       setSaving(false);
     }
@@ -115,87 +119,29 @@ export default function ProjectSettingsPage() {
           </h1>
         </div>
         <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-          Manage project configuration, status, progress, or remove project.
+          Configure project details, workflow status, live URL, code repository link, or remove project.
         </p>
       </div>
 
-      <form onSubmit={handleUpdate} className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-6 space-y-5 shadow-sm">
-        <div className="space-y-2">
-          <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-            Project Name
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 py-2.5 text-xs text-zinc-900 dark:text-white outline-none focus:border-blue-500 transition-colors"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-            Description
-          </label>
-          <textarea
-            value={description}
-            rows={3}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 py-2.5 text-xs text-zinc-900 dark:text-white outline-none focus:border-blue-500 transition-colors resize-y"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-              Status
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 py-2.5 text-xs text-zinc-900 dark:text-white outline-none focus:border-blue-500 transition-colors cursor-pointer"
-            >
-              <option value="Planning">Planning</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-              <option value="On Hold">On Hold</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-              Progress (%)
-            </label>
-            <input
-              type="number"
-              min={0}
-              max={100}
-              value={progress}
-              onChange={(e) => setProgress(Number(e.target.value))}
-              className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 py-2.5 text-xs text-zinc-900 dark:text-white outline-none focus:border-blue-500 transition-colors"
-            />
-          </div>
-        </div>
-
-        <div className="pt-3 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800">
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="px-4 py-2 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <Trash2 className="w-4 h-4" />
-            Delete Project
-          </button>
-
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
-          >
-            <Save className="w-4 h-4" />
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
-      </form>
+      <UpdateProject
+        name={name}
+        setName={setName}
+        description={description}
+        setDescription={setDescription}
+        type={type}
+        setType={setType}
+        experienceLevel={experienceLevel}
+        setExperienceLevel={setExperienceLevel}
+        status={status}
+        setStatus={setStatus}
+        projectLiveLink={projectLiveLink}
+        setProjectLiveLink={setProjectLiveLink}
+        githubLink={githubLink}
+        setGithubLink={setGithubLink}
+        saving={saving}
+        handleUpdate={handleUpdate}
+        handleDelete={handleDelete}
+      />
     </div>
   );
 }

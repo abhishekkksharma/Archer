@@ -12,7 +12,7 @@ import {
   Avatar3,
   Avatar4,
   Avatar5,
-} from "@/assets/ProfileIcons/avatars";
+} from "@/assets/Icons/avatars";
 
 const avatarMap = {
   avatar1: Avatar1,

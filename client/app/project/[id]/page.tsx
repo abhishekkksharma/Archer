@@ -37,6 +37,7 @@ interface IProject {
   link?: string;
   demoUrl?: string;
   projectLiveLink?: string;
+  githubLink?: string;
 }
 
 function getCookie(name: string): string | null {
@@ -200,6 +201,7 @@ export default function ProjectDashboardPage() {
   const projectType = project?.type || "Web Application";
   const experienceLevel = project?.experienceLevel || "Beginner";
   const projectLink = project?.projectLiveLink;
+  const githubLink = project?.githubLink;
 
   // Keep progress between 0 and 100
   const clampedProgress = Math.min(
@@ -332,6 +334,27 @@ export default function ProjectDashboardPage() {
               <span className="text-xs text-zinc-400 dark:text-zinc-500 italic">
                 The website is not live yet
               </span>
+            )}
+
+            {githubLink && (
+              <a
+                href={githubLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="
+                  inline-flex items-center gap-1.5
+                  rounded-full
+                  bg-zinc-500/10 hover:bg-zinc-500/20
+                  border border-zinc-500/20
+                  px-2.5 py-1
+                  text-xs font-semibold
+                  text-zinc-700 dark:text-zinc-300
+                  transition-colors
+                "
+              >
+                <span>Repository</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
             )}
           </div>
 
