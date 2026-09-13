@@ -6,91 +6,100 @@ import AuthWarning from "../AuthWarning";
 
 function WelcomeContainer() {
   const { user, loading } = useUser();
-  const projects = user?.projects;
 
-  if (loading) return <p>Loading...</p>;
-  if (!user) return <AuthWarning/>;
+  const projects = user?.projects ?? [];
+
+  const completedProjects = projects.filter(
+    (project) => project.status === "Completed",
+  ).length;
+
+  const undergoingProjects = projects.filter(
+    (project) => project.status !== "Completed",
+  ).length;
+
+  if (loading) return "";
+  if (!user) return <AuthWarning />;
 
   return (
     <div className="px-6 sm:px-8 md:px-[8%] lg:px-[10%] mt-18 flex flex-col gap-4 py-8 pb-2 border-t border-zinc-200 dark:border-zinc-800">
-      
       {/* Welcome */}
-      <div className="flex flex-col gap-2">
-        <p className="text-slate-900 dark:text-zinc-100 text-2xl sm:text-3xl font-semibold">
+      <div className="flex flex-col gap-1">
+        <p className="text-xl sm:text-3xl font-semibold text-slate-900 dark:text-zinc-100">
           Welcome, {user.name.split(" ")[0]}!
         </p>
 
-        <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">
+        <p className="text-md sm:text-md text-zinc-600 dark:text-zinc-400">
           What's the agenda today
         </p>
       </div>
 
       {/* Stats */}
       <div className="text-slate-900 dark:text-zinc-200 grid grid-cols-2 gap-x-4 gap-y-8 py-6 sm:flex sm:flex-wrap sm:gap-10 lg:flex-nowrap lg:gap-16 lg:py-8">
+        {/* Total Projects */}
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+          <div className="group relative h-9 w-9 sm:h-12 sm:w-12 shrink-0">
+            <Folder
+              className="
+                absolute left-1 top-0
+                h-8 w-8 sm:h-10 sm:w-10
+                fill-blue-300 text-blue-300
+                transition-all duration-300
+                group-hover:-translate-y-2
+              "
+            />
 
-  {/* Total Projects */}
-  <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-    <div className="group relative h-9 w-9 sm:h-12 sm:w-12 shrink-0">
-      <Folder
-        className="
-          absolute left-1 top-0
-          h-8 w-8 sm:h-10 sm:w-10
-          fill-blue-300 text-blue-300
-          transition-all duration-300
-          group-hover:-translate-y-2
-        "
-      />
+            <Folder
+              className="
+                absolute bottom-0 left-0
+                h-8 w-8 sm:h-10 sm:w-10
+                fill-blue-500 text-blue-500
+                transition-all duration-300
+                group-hover:translate-x-1
+              "
+            />
+          </div>
 
-      <Folder
-        className="
-          absolute bottom-0 left-0
-          h-8 w-8 sm:h-10 sm:w-10
-          fill-blue-500 text-blue-500
-          transition-all duration-300
-          group-hover:translate-x-1
-        "
-      />
-    </div>
+          <div className="min-w-0 flex flex-col">
+            <p className="font-semibold text-sm sm:text-base leading-tight">
+              Total Projects
+            </p>
 
-    <div className="min-w-0 flex flex-col">
-      <p className="font-semibold text-base sm:text-lg leading-tight">
-        Total Projects
-      </p>
-      <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base mt-1">
-        {projects?.length ?? 0}
-      </p>
-    </div>
-  </div>
+            <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm mt-1">
+              {projects.length}
+            </p>
+          </div>
+        </div>
 
-  {/* Undergoing Projects */}
-  <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-    <TrafficCone className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
+        {/* Undergoing Projects */}
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+          <TrafficCone className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
 
-    <div className="min-w-0 flex flex-col">
-      <p className="font-semibold text-base sm:text-xl leading-tight">
-        Undergoing Projects
-      </p>
-      <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base mt-1">
-        {projects?.length ?? 0}
-      </p>
-    </div>
-  </div>
+          <div className="min-w-0 flex flex-col">
+            <p className="font-semibold text-sm sm:text-base leading-tight">
+              Undergoing Projects
+            </p>
 
-  {/* Completed Projects */}
-  <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-    <CircleCheckBig className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
+            <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm mt-1">
+              {undergoingProjects}
+            </p>
+          </div>
+        </div>
 
-    <div className="min-w-0 flex flex-col">
-      <p className="font-semibold text-base sm:text-lg leading-tight">
-        Completed Projects
-      </p>
-      <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base mt-1">
-        0
-      </p>
-    </div>
-  </div>
+        {/* Completed Projects */}
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+          <CircleCheckBig className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
 
-</div>
+          <div className="min-w-0 flex flex-col">
+            <p className="font-semibold text-sm sm:text-base leading-tight">
+              Completed Projects
+            </p>
+
+            <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm mt-1">
+              {completedProjects}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

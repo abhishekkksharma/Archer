@@ -2,10 +2,11 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useUser } from "@/context/UserContext";
-import { Clock, Layers3, ChevronDown, Filter } from "lucide-react";
+import { Clock, Layers3, ChevronDown, Filter, } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import AuthWarning from "../AuthWarning";
+import Loader from "../Loader";
 
 interface IProject {
   _id?: string;
@@ -98,9 +99,7 @@ function Projects() {
 
   if (loading) {
     return (
-      <p className="px-6 sm:px-8 md:px-[8%] lg:px-[10%] py-6 text-zinc-500 dark:text-zinc-400">
-        Loading...
-      </p>
+      <Loader/>
     );
   }
 
@@ -113,7 +112,7 @@ function Projects() {
       {/* Header & Filter Controls */}
       <div className="flex flex-row items-center justify-between gap-4 mb-4">
         <div>
-          <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white tracking-wide">
+          <h2 className="text-md sm:text-xl font-semibold text-slate-900 dark:text-white tracking-wide">
             Recent Projects
           </h2>
           {/* <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
@@ -122,20 +121,23 @@ function Projects() {
         </div>
 
         {/* Filter Dropdown */}
-        <div className="relative flex gap-6 items-center" ref={dropdownRef}>
-          <Link href={"/project/new"}>
+        <div className="relative flex gap-4 items-center" ref={dropdownRef}>
+          <Link href="/project/new" className="w-full sm:w-auto">
             <button
               className="
                 group
                 flex
+                w-full
+                sm:w-auto
                 items-center
+                justify-center
                 gap-2
                 rounded-lg
                 border
                 border-zinc-200
                 bg-white
-                px-3
-                py-1.5
+                px-2
+                py-1.25
                 text-sm
                 font-medium
                 text-blue-500
@@ -154,13 +156,14 @@ function Projects() {
                 dark:hover:border-blue-500/50
                 dark:hover:bg-blue-500/10
                 dark:hover:text-blue-300
-              "
+                "
             >
               <span
                 className="
                   flex
                   h-5
                   w-5
+                  shrink-0
                   items-center
                   justify-center
                   rounded-md
@@ -169,11 +172,12 @@ function Projects() {
                   transition-transform
                   duration-200
                   group-hover:rotate-90
-                "
+                  "
               >
                 +
               </span>
-              New Project
+
+              <span className="whitespace-nowrap hidden md:flex">New Project</span>
             </button>
           </Link>
           <button

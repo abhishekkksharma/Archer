@@ -19,6 +19,7 @@ import {
   Award,
   ExternalLink,
   Globe,
+  GitBranch,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -163,6 +164,13 @@ export default function ProjectDashboardPage() {
       href: `/project/${id}/progress`,
       icon: Activity,
       color: "text-rose-500 bg-rose-500/10 border-rose-500/20",
+    },
+    {
+      title: "GitHub Stats",
+      desc: "View repository metrics, commit activity and top contributors.",
+      href: `/project/${id}/githubstats`,
+      icon: GitBranch,
+      color: "text-violet-500 bg-violet-500/10 border-violet-500/20",
     },
     {
       title: "Settings",

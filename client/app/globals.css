@@ -69,3 +69,22 @@ input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 30px #1f1f23 inset !important; /* Matches dark:bg-zinc-800/50 over dark:bg-zinc-900 */
   -webkit-text-fill-color: #f4f4f5 !important; /* Matches dark:text-zinc-200 */
 }
+
+
+/* loader */
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 120px;
+  height: 55px;
+  background:
+    radial-gradient(circle 11px at top,#0000 94%,#b0e5f3) 0 20px,
+    radial-gradient(circle 11px at top,#0000 94%,#5dc1e4) 0 10px,
+    radial-gradient(circle 11px at top,#0000 94%,#008cd9) 0 0   ;
+  background-size: 20px 100%;
+  background-repeat: repeat-x;
+  animation: l7 1s infinite linear;
+}
+@keyframes l7 {
+  50%  {background-position: 10px 15px,-10px 12px,15px 8px}
+  100% {background-position: 20px 20px,-20px 10px,20px 0px}
+}

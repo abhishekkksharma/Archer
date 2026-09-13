@@ -15,8 +15,26 @@ import {
   Map,
   Settings,
 } from "lucide-react";
+import GithubSVG from "@/assets/github.svg"
 import ProgressBar from "./ProgressBar";
 import Image from "next/image";
+
+const GithubIcon = ({
+  size = 16,
+  className = "",
+}: {
+  size?: number;
+  strokeWidth?: number;
+  className?: string;
+}) => (
+  <Image
+    src={GithubSVG}
+    alt="GitHub"
+    width={size}
+    height={size}
+    className={`dark:invert ${className}`}
+  />
+);
 
 const sidebarItems = [
   {
@@ -58,6 +76,11 @@ const sidebarItems = [
     name: "tech-stack",
     href: "/tech-stack",
     icon: Code2,
+  },
+  {
+    name: "github-stats",
+    href: "/githubstats",
+    icon: GithubIcon,
   },
   {
     name: "settings",
@@ -213,11 +236,7 @@ function Sidebar({
         </div>
       </nav>
 
-      {/* Theme Toggle Footer */}
-      <div className="p-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between shrink-0 bg-zinc-50/50 dark:bg-zinc-950/50">
-        {/* <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Theme</span>
-        <ThemeToggle scrolled /> */}
-      </div>
+      
     </aside>
   );
 }

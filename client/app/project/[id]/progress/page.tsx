@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 import { Activity, Target, Flag, CheckSquare } from "lucide-react";
 import ProgressBar from "@/components/Projects/ProgressBar";
+import ProjectGithubStats from "@/components/Github";
 
 export default function ProjectProgressPage() {
   const params = useParams();

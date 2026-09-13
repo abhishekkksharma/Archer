@@ -5,6 +5,7 @@ import { TechStack } from "../models/techStack.model";
 import User from "../models/user.model";
 import { techServices } from "../services/addTechStack.service";
 import type { AuthRequest } from "../middlewares/auth.middleware";
+import {githubServices} from "../services/github.services"
 
 class ProjectsController {
   // =========================
@@ -526,6 +527,93 @@ class ProjectsController {
       return res.status(500).json({
         success: false,
         message: "Failed to delete technology from stack",
+      });
+    }
+  };
+
+  // =========================
+  // GET GITHUB STATS
+  // GET /projects/githubstats
+  // =========================
+  public getProjectGithubStats = async (req: AuthRequest, res: Response) => {
+    try {
+      let githubUsername = (
+        req.query.githubUsername ||
+        req.body?.githubUsername ||
+        req.query.owner ||
+        req.body?.owner
+      ) as string | undefined;
+
+      let repo = (req.query.repo || req.body?.repo) as string | undefined;
+
+      const githubLink = (
+        req.query.githubLink ||
+        req.query.githubUrl ||
+        req.query.url ||
+        req.body?.githubLink ||
+        req.body?.githubUrl ||
+        req.body?.url
+      ) as string | undefined;
+
+      const projectId = (req.params?.id || req.query.projectId || req.body?.projectId) as string | undefined;
+
+      const parseGithubUrl = (url: string) => {
+        if (!url) return null;
+        const cleanUrl = url.trim().replace(/\.git$/, "").replace(/\/$/, "");
+        const match = cleanUrl.match(/(?:github\.com\/|^)([^\/]+)\/([^\/]+)$/);
+        if (match) {
+          return { githubUsername: match[1], repo: match[2] };
+        }
+        return null;
+      };
+
+      if ((!githubUsername || !repo) && githubLink) {
+        const parsed = parseGithubUrl(githubLink);
+        if (parsed) {
+          githubUsername = githubUsername || parsed.githubUsername;
+          repo = repo || parsed.repo;
+        }
+      }
+
+      if ((!githubUsername || !repo) && githubUsername && githubUsername.includes("/")) {
+        const parsed = parseGithubUrl(githubUsername);
+        if (parsed) {
+          githubUsername = parsed.githubUsername;
+          repo = parsed.repo;
+        }
+      }
+
+      if ((!githubUsername || !repo) && projectId && mongoose.Types.ObjectId.isValid(projectId)) {
+        const userId = req.user?.userId;
+        const project = await Project.findOne({ _id: projectId, ...(userId ? { userId } : {}) });
+        if (project && project.githubLink) {
+          const parsed = parseGithubUrl(project.githubLink);
+          if (parsed) {
+            githubUsername = parsed.githubUsername;
+            repo = parsed.repo;
+          }
+        }
+      }
+
+      if (!githubUsername || !repo) {
+        return res.status(400).json({
+          success: false,
+          message: "githubUsername and repo (or valid githubLink) are required",
+        });
+      }
+
+      const stats = await githubServices.getRepoStats(githubUsername, repo);
+
+      return res.status(200).json({
+        success: true,
+        data: stats,
+      });
+    } catch (error: any) {
+      console.error("GitHub stats error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: error?.message || "Failed to fetch GitHub repository stats",
       });
     }
   };
