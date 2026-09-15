@@ -43,8 +43,8 @@ class GithubServices {
     const [repoResponse, commitsResponse, contributorsResponse] =
       await Promise.all([
         fetch(baseUrl, { headers }),
-        fetch(`${baseUrl}/commits?per_page=10`, { headers }),
-        fetch(`${baseUrl}/contributors?per_page=10`, { headers }),
+        fetch(`${baseUrl}/commits`, { headers }),
+        fetch(`${baseUrl}/contributors`, { headers }),
       ]);
 
     if (!repoResponse.ok) {
@@ -57,7 +57,11 @@ class GithubServices {
 
     const safeCommits = Array.isArray(commitsData) ? commitsData : [];
     const safeContributors = Array.isArray(contributorsData) ? contributorsData : [];
-
+    const totalCommits = safeContributors.reduce(
+  (total: number, contributor: any) =>
+    total + contributor.contributions,
+  0
+);  
     return {
       repository: {
         name: repoData.name,
@@ -68,19 +72,19 @@ class GithubServices {
       },
 
       activity: {
-        total_commits: safeCommits.length,
+        total_commits: totalCommits,
 
         commits: safeCommits.map((commit: any) => ({
           committer: commit.committer,
           message: commit.commit?.message || "",
         })),
-
         url: `${html_base_url}/commits`,
       },
 
       contributors: safeContributors.map((contributor: any) => ({
         username: contributor.login,
         contributions: contributor.contributions,
+        avatar_url:contributor.avatar_url
       })),
     };
   }

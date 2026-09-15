@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useParams } from "next/navigation";
-import ProjectGithubStats from "@/components/Github";
+import ProjectGithubStats from "@/components/ProjectGithubStats";
 
 export default function GithubStatsPage() {
   const params = useParams();
