@@ -3,47 +3,131 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useUser } from "@/context/UserContext";
-import { Activity, Target, Flag, CheckSquare } from "lucide-react";
-import ProgressBar from "@/components/Projects/ProgressBar";
-import ProjectGithubStats from "@/components/ProjectGithubStats";
+import { Activity } from "lucide-react";
+import BarChart, {
+  DailyProgressData,
+} from "@/components/Progress/BarChart";
 
 export default function ProjectProgressPage() {
   const params = useParams();
+
   const rawId = params?.id;
   const id = Array.isArray(rawId) ? rawId[0] : rawId || "";
 
   const { user } = useUser();
+
   const [project, setProject] = useState<any>(null);
+  const [dailyProgress, setDailyProgress] = useState<DailyProgressData[]>([]);
+  const [summary, setSummary] = useState<any>(null);
+  const [isLoadingProgress, setIsLoadingProgress] = useState(true);
 
   useEffect(() => {
     if (!id || !user?.projects) return;
-    const found = user.projects.find((p: any) => p._id === id || p.id === id);
-    if (found) setProject(found);
+
+    const found = user.projects.find(
+      (p: any) => p._id === id || p.id === id
+    );
+
+    if (found) {
+      setProject(found);
+    }
   }, [id, user]);
 
-  const progress = project?.progress ?? 75;
+  useEffect(() => {
+    if (!id) return;
+
+    const getCookie = (name: string): string | null => {
+      if (typeof window === "undefined") return null;
+
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+
+      return parts.length === 2
+        ? parts.pop()?.split(";").shift() || null
+        : null;
+    };
+
+    const fetchProgress = async () => {
+      setIsLoadingProgress(true);
+
+      try {
+        const token =
+          getCookie("token") ||
+          getCookie("auth_token") ||
+          getCookie("jwt");
+
+        const backendUrl =
+          process.env.NEXT_PUBLIC_BACKEND_URL ||
+          "http://localhost:5000/api";
+
+        const url = `${backendUrl.replace(/\/$/, "")}/progress/${id}`;
+
+        console.log("Progress API:", url);
+
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token
+              ? {
+                  Authorization: `Bearer ${token}`,
+                }
+              : {}),
+          },
+        });
+
+        const json = await res.json();
+
+        console.log("Progress API response:", json);
+
+        if (!res.ok) {
+          throw new Error(
+            json?.message || `Request failed with status ${res.status}`
+          );
+        }
+
+        if (json.success && json.data) {
+          setDailyProgress(json.data.dailyProgress ?? []);
+          setSummary(json.data.summary ?? null);
+
+          if (json.data.project) {
+            setProject((prev: any) => ({
+              ...prev,
+              ...json.data.project,
+            }));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch progress metrics:", error);
+        setDailyProgress([]);
+      } finally {
+        setIsLoadingProgress(false);
+      }
+    };
+
+    fetchProgress();
+  }, [id]);
 
   return (
     <div className="p-6 sm:p-8 space-y-6 max-w-5xl mx-auto">
       <div>
         <div className="flex items-center gap-2 text-rose-500">
           <Activity className="w-5 h-5" />
+
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
             Progress Tracking
           </h1>
         </div>
+
         <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
           Monitor overall progress metrics and milestone completion.
         </p>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-6 space-y-4">
-        <div className="flex justify-between items-center text-sm font-semibold">
-          <span className="text-zinc-900 dark:text-white">Completion Rate</span>
-          <span className="text-blue-500 font-bold">{progress}%</span>
-        </div>
-        <ProgressBar progress={progress} />
-      </div>
+      <BarChart
+        data={dailyProgress}
+        isLoading={isLoadingProgress}
+      />
     </div>
   );
 }

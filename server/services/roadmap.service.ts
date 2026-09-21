@@ -122,11 +122,66 @@ export class RoadmapService {
     const updatePayload: any = { ...data };
 
     if (data.phases) {
+      // Retain/update startDateTime and completionDateTime for tasks in data.phases
+      const existingTaskMap = new Map<string, any>();
+      if (roadmap.phases) {
+        for (const phase of roadmap.phases) {
+          for (const task of phase.tasks) {
+            const taskId = task._id ? task._id.toString() : task.title;
+            existingTaskMap.set(taskId, task);
+          }
+        }
+      }
+
+      const now = new Date();
+      data.phases = data.phases.map((phase: any) => ({
+        ...phase,
+        tasks: (phase.tasks || []).map((task: any) => {
+          const taskId = task._id ? task._id.toString() : task.title;
+          const oldTask = existingTaskMap.get(taskId);
+          const oldStatus = oldTask ? oldTask.status : null;
+          const newStatus = task.status;
+
+          let startDateTime =
+            task.startDateTime !== undefined
+              ? task.startDateTime
+              : oldTask
+              ? oldTask.startDateTime
+              : null;
+          let completionDateTime =
+            task.completionDateTime !== undefined
+              ? task.completionDateTime
+              : oldTask
+              ? oldTask.completionDateTime
+              : null;
+
+          if (oldStatus !== newStatus) {
+            if (newStatus === "in_progress") {
+              if (!task.startDateTime) startDateTime = now;
+              completionDateTime = null;
+            } else if (newStatus === "completed") {
+              if (!task.completionDateTime) completionDateTime = now;
+              if (!startDateTime) startDateTime = completionDateTime;
+            } else if (newStatus === "not_started") {
+              if (task.startDateTime === undefined) startDateTime = null;
+              if (task.completionDateTime === undefined) completionDateTime = null;
+            }
+          }
+
+          return {
+            ...task,
+            startDateTime,
+            completionDateTime,
+          };
+        }),
+      }));
+
       const computedStats = this.calculateStatistics(data.phases);
       updatePayload.statistics = {
         ...computedStats,
         ...(data.statistics || {}),
       };
+      updatePayload.phases = data.phases;
     }
 
     const updatedRoadmap = await Roadmap.findByIdAndUpdate(
@@ -197,6 +252,8 @@ export class RoadmapService {
       priority?: "low" | "medium" | "high";
       status?: "not_started" | "in_progress" | "completed" | "blocked";
       dependencies?: string[];
+      startDateTime?: Date | null;
+      completionDateTime?: Date | null;
     }
   ) {
     const roadmap = await this.findRoadmap(roadmapId);
@@ -215,6 +272,25 @@ export class RoadmapService {
       throw new Error(`Phase '${phaseIdentifier}' not found in roadmap`);
     }
 
+    const initialStatus = taskData.status || "not_started";
+    const now = new Date();
+
+    const startDateTime =
+      taskData.startDateTime !== undefined
+        ? taskData.startDateTime
+        : initialStatus === "in_progress"
+        ? now
+        : initialStatus === "completed"
+        ? now
+        : null;
+
+    const completionDateTime =
+      taskData.completionDateTime !== undefined
+        ? taskData.completionDateTime
+        : initialStatus === "completed"
+        ? now
+        : null;
+
     const newTask = {
       title: taskData.title,
       description: taskData.description || "",
@@ -223,8 +299,10 @@ export class RoadmapService {
       estimatedHours:
         taskData.estimatedHours !== undefined ? taskData.estimatedHours : 0,
       priority: taskData.priority || "medium",
-      status: taskData.status || "not_started",
+      status: initialStatus,
       dependencies: taskData.dependencies || [],
+      startDateTime,
+      completionDateTime,
     };
 
     phase.tasks.push(newTask as any);
@@ -252,6 +330,8 @@ export class RoadmapService {
       priority?: "low" | "medium" | "high";
       status?: "not_started" | "in_progress" | "completed" | "blocked";
       dependencies?: string[];
+      startDateTime?: Date | null;
+      completionDateTime?: Date | null;
     } = {}
   ) {
     const roadmap = await this.findRoadmap(roadmapId);
@@ -309,7 +389,41 @@ export class RoadmapService {
       targetTask.description = updateData.description;
     if (updateData.priority !== undefined)
       targetTask.priority = updateData.priority;
-    if (updateData.status !== undefined) targetTask.status = updateData.status;
+
+    if (updateData.status !== undefined) {
+      const oldStatus = targetTask.status;
+      const newStatus = updateData.status;
+
+      if (oldStatus !== newStatus) {
+        if (newStatus === "in_progress") {
+          targetTask.startDateTime =
+            updateData.startDateTime !== undefined
+              ? updateData.startDateTime
+              : new Date();
+          targetTask.completionDateTime = null;
+        } else if (newStatus === "completed") {
+          targetTask.completionDateTime =
+            updateData.completionDateTime !== undefined
+              ? updateData.completionDateTime
+              : new Date();
+          if (!targetTask.startDateTime) {
+            targetTask.startDateTime =
+              updateData.startDateTime || targetTask.completionDateTime;
+          }
+        } else if (newStatus === "not_started") {
+          if (updateData.startDateTime === undefined) targetTask.startDateTime = null;
+          if (updateData.completionDateTime === undefined) targetTask.completionDateTime = null;
+        }
+      }
+
+      targetTask.status = newStatus;
+    }
+
+    if (updateData.startDateTime !== undefined)
+      targetTask.startDateTime = updateData.startDateTime;
+    if (updateData.completionDateTime !== undefined)
+      targetTask.completionDateTime = updateData.completionDateTime;
+
     if (updateData.estimatedHours !== undefined)
       targetTask.estimatedHours = updateData.estimatedHours;
     if (updateData.order !== undefined) targetTask.order = updateData.order;

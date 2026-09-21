@@ -18,6 +18,8 @@ export interface ITask {
   estimatedHours?: number;
   priority?: "low" | "medium" | "high";
   status: "not_started" | "in_progress" | "completed" | "blocked";
+  startDateTime?: Date | string | null;
+  completionDateTime?: Date | string | null;
 }
 
 export interface IPhase {

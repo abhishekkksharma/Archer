@@ -22,6 +22,8 @@ export interface ITaskItem {
   priority?: "low" | "medium" | "high";
   status: "not_started" | "in_progress" | "completed" | "blocked";
   dependencies?: string[];
+  startDateTime?: Date | string | null;
+  completionDateTime?: Date | string | null;
 }
 
 export interface IRoadmapPhaseData {

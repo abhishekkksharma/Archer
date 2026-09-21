@@ -16,6 +16,8 @@ export interface IRoadmapPhase {
     priority: "low" | "medium" | "high";
     status: "not_started" | "in_progress" | "completed" | "blocked";
     dependencies: string[];
+    startDateTime?: Date | null;
+    completionDateTime?: Date | null;
   }[];
 }
 
@@ -61,6 +63,8 @@ const roadmapPhaseSchema = new Schema<IRoadmapPhase>({
         default: "not_started",
       },
       dependencies: [{ type: String }],
+      startDateTime: { type: Date, default: null },
+      completionDateTime: { type: Date, default: null },
     },
   ],
 });

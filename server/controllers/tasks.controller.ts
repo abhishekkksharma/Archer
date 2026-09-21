@@ -9,7 +9,17 @@ export class TasksController {
   public addTask = async (req: Request, res: Response) => {
     try {
       const { roadmapId, phaseNumber } = req.params;
-      const { title, description, order, estimatedHours, priority, status, dependencies } = req.body;
+      const {
+        title,
+        description,
+        order,
+        estimatedHours,
+        priority,
+        status,
+        dependencies,
+        startDateTime,
+        completionDateTime,
+      } = req.body;
 
       const targetRoadmapId = roadmapId || req.body.roadmapId || req.body.projectId;
       const targetPhaseNumber = phaseNumber || req.body.phaseNumber || req.body.phaseId;
@@ -46,6 +56,8 @@ export class TasksController {
           priority,
           status,
           dependencies,
+          startDateTime,
+          completionDateTime,
         }
       );
 
@@ -92,7 +104,17 @@ export class TasksController {
         });
       }
 
-      const { title, description, order, estimatedHours, priority, status, dependencies } = req.body;
+      const {
+        title,
+        description,
+        order,
+        estimatedHours,
+        priority,
+        status,
+        dependencies,
+        startDateTime,
+        completionDateTime,
+      } = req.body;
 
       const result = await roadmapService.updateTaskInPhase(
         targetRoadmapId,
@@ -106,6 +128,8 @@ export class TasksController {
           priority,
           status,
           dependencies,
+          startDateTime,
+          completionDateTime,
         }
       );
 

@@ -4,6 +4,7 @@ import authRouter from "./routes/auth.route";
 import projectsRouter from "./routes/project.route";
 import roadmapRouter from "./routes/roadmap.route";
 import tasksRouter from "./routes/tasks.route";
+import progressRouter from "./routes/progress.routes";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/project", projectsRouter);
 app.use("/api/roadmaps", roadmapRouter);
 app.use("/api/tasks", tasksRouter);
+app.use("/api/progress", progressRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.json({
