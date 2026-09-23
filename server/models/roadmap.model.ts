@@ -22,6 +22,7 @@ export interface IRoadmapPhase {
 }
 
 export interface IRoadmap extends Document {
+  _id: mongoose.Types.ObjectId;
   projectId: mongoose.Types.ObjectId;
   phases: IRoadmapPhase[];
   statistics: {
@@ -32,6 +33,8 @@ export interface IRoadmap extends Document {
     blockedTasks: number;
     progress: number;
   };
+  markModified(path: string): void;
+  save(): Promise<this>;
   createdAt: Date;
   updatedAt: Date;
 }

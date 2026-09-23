@@ -36,10 +36,10 @@ class ProgressController {
       });
 
       const phases = roadmap?.phases || [];
-      const allTasks = phases.flatMap((phase) => phase.tasks || []);
+      const allTasks = phases.flatMap((phase: any) => phase.tasks || []);
 
       const completedTasks = allTasks.filter(
-        (task) => task.status === "completed"
+        (task: any) => task.status === "completed"
       );
 
       const formatDateStr = (date: Date): string => {
@@ -129,7 +129,7 @@ class ProgressController {
       let totalCompletedEstimatedHours = 0;
 
       const totalProjectEstimatedHours = allTasks.reduce(
-        (sum, task) => sum + (task.estimatedHours || 0),
+        (sum: number, task: any) => sum + (task.estimatedHours || 0),
         0
       );
 

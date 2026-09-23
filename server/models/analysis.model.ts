@@ -78,13 +78,13 @@ const analysisSchema = new Schema<IAnalysis>(
   {
     timestamps: true,
     toJSON: {
-      transform: (_doc, ret) => {
+      transform: (_doc: any, ret: any) => {
         delete (ret as any).__v;
         return ret;
       },
     },
     toObject: {
-      transform: (_doc, ret) => {
+      transform: (_doc: any, ret: any) => {
         delete (ret as any).__v;
         return ret;
       },

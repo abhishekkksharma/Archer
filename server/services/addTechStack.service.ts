@@ -355,7 +355,7 @@ class TechServices {
 
     if (techStackDoc && techStackDoc[targetCat]) {
       techStackDoc[targetCat] = techStackDoc[targetCat].filter(
-        (item) => item.name.toLowerCase() !== techName.toLowerCase()
+        (item: any) => item.name.toLowerCase() !== techName.toLowerCase()
       );
       await techStackDoc.save();
     }
