@@ -4,9 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 import { Activity } from "lucide-react";
-import BarChart, {
-  DailyProgressData,
-} from "@/components/Progress/BarChart";
+import BarChart, { DailyProgressData } from "@/components/Progress/BarChart";
+import ProgressBar from "@/components/Projects/ProgressBar";
 
 export default function ProjectProgressPage() {
   const params = useParams();
@@ -24,9 +23,7 @@ export default function ProjectProgressPage() {
   useEffect(() => {
     if (!id || !user?.projects) return;
 
-    const found = user.projects.find(
-      (p: any) => p._id === id || p.id === id
-    );
+    const found = user.projects.find((p: any) => p._id === id || p.id === id);
 
     if (found) {
       setProject(found);
@@ -52,13 +49,10 @@ export default function ProjectProgressPage() {
 
       try {
         const token =
-          getCookie("token") ||
-          getCookie("auth_token") ||
-          getCookie("jwt");
+          getCookie("token") || getCookie("auth_token") || getCookie("jwt");
 
         const backendUrl =
-          process.env.NEXT_PUBLIC_BACKEND_URL ||
-          "http://localhost:5000/api";
+          process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/api";
 
         const url = `${backendUrl.replace(/\/$/, "")}/progress/${id}`;
 
@@ -82,7 +76,7 @@ export default function ProjectProgressPage() {
 
         if (!res.ok) {
           throw new Error(
-            json?.message || `Request failed with status ${res.status}`
+            json?.message || `Request failed with status ${res.status}`,
           );
         }
 
@@ -123,11 +117,48 @@ export default function ProjectProgressPage() {
           Monitor overall progress metrics and milestone completion.
         </p>
       </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="w-fit rounded border border-zinc-200 bg-zinc-50 px-2 py-1 dark:border-zinc-800 dark:bg-zinc-950">
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
+            Total tasks:{" "}
+            <span className="font-medium text-zinc-900 dark:text-zinc-100">
+              {summary?.totalTasksCount ?? 0}
+            </span>
+          </p>
+        </div>
 
-      <BarChart
-        data={dailyProgress}
-        isLoading={isLoadingProgress}
-      />
+        <div className="w-fit rounded border border-zinc-200 bg-zinc-50 px-2 py-1 dark:border-zinc-800 dark:bg-zinc-950">
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
+            Completed:{" "}
+            <span className="font-medium text-zinc-900 dark:text-zinc-100">
+              {summary?.completedTasksCount ?? 0}
+            </span>
+          </p>
+        </div>
+
+        <div className="w-fit rounded border border-zinc-200 bg-zinc-50 px-2 py-1 dark:border-zinc-800 dark:bg-zinc-950">
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
+            Work time:{" "}
+            <span className="font-medium text-zinc-900 dark:text-zinc-100">
+              {summary?.totalTimeTakenHours ?? 0}h
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <BarChart data={dailyProgress} isLoading={isLoadingProgress} />
+      {/* Labels */}
+      <div className="flex flex-wrap gap-x-8 gap-y-3 text-xs text-zinc-500 dark:text-zinc-300">
+        <div className="flex items-center gap-2">
+          <div className="h-5 w-5 shrink-0 rounded border border-zinc-300/70 bg-zinc-200" />
+          <p className="">Estimated time for task to be on that day</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="h-5 w-5 shrink-0 rounded bg-blue-500" />
+          <p className=" ">Actual time taken to complete that task</p>
+        </div>
+      </div>
     </div>
   );
 }

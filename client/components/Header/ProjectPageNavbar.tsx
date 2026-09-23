@@ -52,7 +52,7 @@ function ProjectPageNavbar({ userEmail, userFirstName, projectName }: Props) {
     <header className="sticky top-0 z-40 w-full justify-between h-14 flex px-6 sm:px-9 items-center border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-black/95 backdrop-blur-md text-zinc-900 dark:text-zinc-100">
       {/* Left: Breadcrumbs & Project Selector */}
       <div className="flex items-center gap-2 font-medium text-sm min-w-0">
-        <span className="font-normal text-zinc-500 dark:text-zinc-400 shrink-0">
+        <span className="font-normal lg:pl-0 pl-8 text-zinc-500 dark:text-zinc-400 shrink-0">
           {displayName}
         </span>
         <span className="text-zinc-300 dark:text-zinc-700 shrink-0">/</span>
