@@ -19,15 +19,15 @@ function HeroSection() {
     <section
       style={{
         backgroundImage: `
-    linear-gradient(
-      to bottom,
-      transparent 50%,
-      rgba(250, 250, 250, 0.3) 70%,
-      rgba(250, 250, 250, 0.9) 95%,
-      rgb(255, 255, 255) 100%
-    ),
-    url('${backgroundImage.src}')
-  `,
+          linear-gradient(
+            to bottom,
+            transparent 50%,
+            rgba(250, 250, 250, 0.3) 70%,
+            rgba(250, 250, 250, 0.9) 95%,
+            rgb(255, 255, 255) 100%
+          ),
+          url('${backgroundImage.src}')
+        `,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",

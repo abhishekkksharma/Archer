@@ -12,7 +12,7 @@ function Section1() {
                     </p>
                 </div>
 
-                <div className="flex flex-col gap-5 max-w-2xl font-thin text-base sm:text-base lg:text-lg text-justify text-gray-600 dark:text-white">
+                <div className="flex flex-col gap-5 max-w-2xl font-thin text-base sm:text-base lg:text-lg text-justify text-gray-900 dark:text-white">
                     <p className="leading-relaxed ">
                         <span className=" font-semibold text-2xl">"</span>
                         Archer is a tool designed to help you turn your ideas into reality.

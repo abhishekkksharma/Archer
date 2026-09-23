@@ -76,7 +76,7 @@ export default function FaqSection() {
                     onClick={() =>
                       setActive(isOpen ? null : index)
                     }
-                    className="flex w-full items-center justify-between px-5 py-4 text-left"
+                    className="flex w-full items-center justify-between text-sm px-5 py-4 text-left"
                   >
                     <span className="font-medium text-gray-900 dark:text-zinc-100">
                       {faq.question}

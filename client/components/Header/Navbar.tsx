@@ -28,7 +28,7 @@ function Navbar({ theme }: NavbarProps = {}) {
       link: "/dashboard",
     },
     {
-      name: "Help",
+      name: "Docs",
       link: "#",
     },
   ];

@@ -100,7 +100,6 @@ function HowWeWork() {
                 justify-center
                 rounded-xl
                 text-zinc-900
-                shadow-sm
                 dark:text-white
               "
                     >
