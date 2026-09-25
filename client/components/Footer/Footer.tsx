@@ -4,33 +4,62 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { ArrowUpRight, Mail } from "lucide-react";
 import MailImg from "@/assets/Footer/mail.png";
-import backgroundImage from "@/assets/ProfileIcons/Midnight Teal to Mint Glow.png";
+import { usePopup } from "../Popup/PopupContext";
 
 function Footer() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { showPopup } = usePopup();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    if (!email || !email.includes("@")) return;
+  if (!email || !email.includes("@")) return;
 
-    setSubmitted(true);
-    setEmail("");
-  };
+  setLoading(true);
+  setSubmitted(false);
+  setError("");
+
+  try {
+    const formData = new FormData();
+
+    formData.append(
+      "access_key",
+      process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || ""
+    );
+
+    formData.append("email", email);
+    formData.append("subject", "New Contact Submission - Archer");
+    formData.append("from_name", "Archer Website");
+    formData.append("message", `New user submitted their email: ${email}`);
+
+    const response = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      setEmail("");
+
+      showPopup("Thanks! We'll be in touch soon.","success");
+    } else {
+      showPopup(data.message || "Something went wrong.","error");
+    }
+  } catch (err) {
+    showPopup("Unable to submit your email. Please try again.","error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <footer className="w-full py-10 sm:py-12">
       {/* Contact Card */}
       <div
-        // style={{
-        //   backgroundImage: `
-        //   url('${backgroundImage.src}')
-        // `,
-        //   backgroundSize: "cover",
-        //   backgroundPosition: "center",
-        //   backgroundRepeat: "no-repeat",
-        // }}
         id="contact"
         className="
           relative
@@ -39,7 +68,7 @@ function Footer() {
           max-w-5xl
           overflow-visible
           rounded-3xl
-          bg-zinc-950
+          bg-[#010736]
           dark:bg-zinc-900
           px-6
           sm:px-10
@@ -128,6 +157,7 @@ function Footer() {
                   onChange={(e) => {
                     setEmail(e.target.value);
                     setSubmitted(false);
+                    setError("");
                   }}
                   placeholder="Enter your email"
                   required
@@ -146,6 +176,7 @@ function Footer() {
 
               <button
                 type="submit"
+                disabled={loading}
                 className="
                   group/button
                   flex
@@ -163,33 +194,32 @@ function Footer() {
                   duration-300
                   hover:bg-blue-50
                   active:scale-95
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
                 "
               >
-                <span>Submit</span>
+                <span>{loading ? "Sending..." : "Submit"}</span>
 
-                <ArrowUpRight
-                  size={15}
-                  className="
-                    transition-transform
-                    duration-300
-                    group-hover/button:-translate-y-0.5
-                    group-hover/button:translate-x-0.5
-                  "
-                />
+                {!loading && (
+                  <ArrowUpRight
+                    size={15}
+                    className="
+                      transition-transform
+                      duration-300
+                      group-hover/button:-translate-y-0.5
+                      group-hover/button:translate-x-0.5
+                    "
+                  />
+                )}
               </button>
             </form>
 
-            {submitted && (
-              <p className="mt-2 text-xs text-green-300">
-                Thanks! We'll be in touch soon.
-              </p>
-            )}
           </div>
         </div>
       </div>
 
       {/* Footer Content */}
-      <div className="mt-10 w-full px-6 sm:px-10 lg:px-16 ">
+      <div className="mt-10 w-full px-6 sm:px-10 lg:px-16">
         <div
           className="
             grid
@@ -309,10 +339,6 @@ function Footer() {
             pt-5
           "
         >
-          {/* <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-            © {new Date().getFullYear()} Archer. All rights reserved.
-          </p> */}
-
           <div className="flex items-center gap-5">
             <a
               href="#privacy"
