@@ -98,13 +98,15 @@ export default function ProjectLayout({
         projectDescription={projectDescription}
         progress={progress}
       />
-      <main className="flex-1 overflow-y-auto h-screen bg-zinc-50/50 dark:bg-black/50">
+      <main className="flex flex-col flex-1 h-screen overflow-hidden bg-zinc-50/50 dark:bg-black/50">
         <ProjectPageNavbar
           userEmail={user?.email || ""}
           userFirstName={user?.name ? user.name.split(" ")[0] : ""}
           projectName={projectData?.name || projectName}
         />
-        {children}
+        <div className="flex-1 min-h-0 relative w-full h-full overflow-y-auto">
+          {children}
+        </div>
       </main>
     </div>
   );
