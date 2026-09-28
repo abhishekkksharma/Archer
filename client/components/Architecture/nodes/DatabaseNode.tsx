@@ -129,11 +129,11 @@ export default function DatabaseNode({
         type="target"
         position={Position.Left}
         className="
-          !h-3
-          !w-3
-          !border-2
-          !border-white
-          dark:!border-gray-900
+          h-3!
+          w-3!
+          border-2!
+          border-white!
+          dark:border-gray-900!
         "
         style={{
           top: `${iconSize / 2}px`,

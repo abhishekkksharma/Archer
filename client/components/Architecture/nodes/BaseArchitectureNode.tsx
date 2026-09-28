@@ -14,6 +14,7 @@ export type BaseNodeData = {
 export default function BaseArchitectureNode({
   data,
 }: NodeProps<any>) {
+  
   return (
     <div className="min-w-[220px] rounded-lg border border-gray-300 bg-white p-4 shadow-sm">
       <Handle

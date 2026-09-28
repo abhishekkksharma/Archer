@@ -24,6 +24,8 @@ import TypeScriptIcon from "./TypeScript.svg";
 import VercelIcon from "./Vercel.svg";
 import VueJsIcon from "./Vue.js.svg";
 import RenderIcon from "./render.svg"
+import KafkaIcon from "./Apache Kafka.svg"
+import SupabaseIcon from "./supabase.svg"
 
 // Export individual icon imports
 export {
@@ -52,7 +54,9 @@ export {
   TypeScriptIcon,
   VercelIcon,
   VueJsIcon,
-  RenderIcon
+  RenderIcon,
+  KafkaIcon,
+  SupabaseIcon
 };
 
 // Map tech names and aliases to their SVG icon assets
@@ -94,6 +98,8 @@ export const techIconMap: Record<string, any> = {
   "Spring": SpringIcon,
   "NestJS": NestJsIcon,
   "Nest.js": NestJsIcon,
+  "Supabase": SupabaseIcon,
+  "Supabase Backend": SupabaseIcon,
 
   // Database
   "MongoDB": MongoDbIcon,
@@ -114,6 +120,8 @@ export const techIconMap: Record<string, any> = {
   "Cloudflare": CloudflareIcon,
   "GitHub Actions": GitHubActionsIcon,
   "Render":RenderIcon,
+  "Apache Kafka":KafkaIcon,
+  "Kafka":KafkaIcon
 };
 
 // Categorized structure mapping technology names to icon assets
@@ -135,6 +143,8 @@ export const techIconsByCategory = {
     { name: "Go (Golang)", icon: GoIcon },
     { name: "Java Spring Boot", icon: SpringIcon },
     { name: "NestJS", icon: NestJsIcon },
+    { name: "Supabase", icon: SupabaseIcon },
+    { name: "Supabase Backend", icon: SupabaseIcon },
   ],
   database: [
     { name: "MongoDB", icon: MongoDbIcon },
@@ -150,6 +160,8 @@ export const techIconsByCategory = {
     { name: "Vercel", icon: VercelIcon },
     { name: "Cloudflare", icon: CloudflareIcon },
     { name: "GitHub Actions", icon: GitHubActionsIcon },
+    { name: "Apache Kafka", icon: KafkaIcon },
+    { name: "Kafka", icon: KafkaIcon },
   ],
 };
 
@@ -168,7 +180,7 @@ export function getTechIcon(techName: string): any {
   const cleanTarget = techName.toLowerCase().replace(/[^a-z0-9]/g, "");
   for (const [key, value] of Object.entries(techIconMap)) {
     const cleanKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
-    if (cleanKey === cleanTarget) {
+    if (cleanKey === cleanTarget || cleanTarget.includes(cleanKey)) {
       return value;
     }
   }

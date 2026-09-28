@@ -1,20 +1,14 @@
 import React from "react";
-import { Server } from "lucide-react";
+import { Monitor } from "lucide-react";
 import { BaseNodeData } from "./BaseArchitectureNode";
-import Image from "next/image";
 import {
   Handle,
   Position,
-  type NodeProps,
 } from "@xyflow/react";
-import { getTechIcon } from "@/assets/tech-icons/tech-icons";
 
-function BackendNode({ data }: any) {
+function FrontendNew({ data }: any) {
   const nodeData = data as BaseNodeData;
-  const techIcon = nodeData.technology
-    ? getTechIcon(nodeData.technology)
-    : null;
-  
+
   return (
     <div className="group relative flex w-[140px] flex-col items-center justify-center rounded-2xl border border-zinc-200 bg-zinc-100 px-3 py-2 text-center transition-all duration-200 hover:border-zinc-300 hover:bg-white hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700 dark:hover:bg-zinc-900 dark:hover:shadow-lg dark:hover:shadow-black/20">
       <Handle
@@ -23,17 +17,19 @@ function BackendNode({ data }: any) {
         className="!h-2 !w-2 !border-0 !bg-blue-500 dark:!bg-blue-400"
       />
 
-      {techIcon ? (
-        <Image className="h-10 w-10 shrink-0" src={techIcon} alt="techIcon" />
+      {nodeData.icon ? (
+        <span className="max-w-full break-words text-2xl">
+          {nodeData.icon}
+        </span>
       ) : (
-        <Server className="h-8 w-8 shrink-0 text-zinc-800 dark:text-zinc-200" />
+        <Monitor className="h-8 w-8 shrink-0 text-blue-800 dark:text-blue-400" />
       )}
 
       <p className="mt-1 w-full break-words whitespace-normal text-sm font-medium leading-tight text-zinc-800 dark:text-zinc-200">
         {nodeData.label}
       </p>
 
-      <div className="pointer-events-none absolute left-1/2 top-full z-999 mt-2 w-[220px] -translate-x-1/2 translate-y-1 rounded-xl border border-zinc-200 bg-white p-3 text-left opacity-0 shadow-lg transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-xl dark:shadow-black/30">
+      <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-[220px] -translate-x-1/2 translate-y-1 rounded-xl border border-zinc-200 bg-white p-3 text-left opacity-0 shadow-lg transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-xl dark:shadow-black/30">
         {nodeData.description && (
           <p className="break-words whitespace-normal text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
             {nodeData.description}
@@ -41,7 +37,7 @@ function BackendNode({ data }: any) {
         )}
 
         {nodeData.technology && (
-          <div className="mt-3 border-t border-zinc-200 pt-2 dark:border-zinc-800 ">
+          <div className="mt-3 border-t border-zinc-200 pt-2 dark:border-zinc-800">
             <p className="text-[10px] font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
               Technology
             </p>
@@ -62,4 +58,4 @@ function BackendNode({ data }: any) {
   );
 }
 
-export default BackendNode;
+export default FrontendNew;

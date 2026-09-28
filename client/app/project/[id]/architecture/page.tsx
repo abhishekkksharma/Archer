@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Flow from "@/components/Architecture/Flow";
+import Flow from "@/components/Architecture/Canvas";
 
 export default function ProjectArchitecturePage() {
   return (

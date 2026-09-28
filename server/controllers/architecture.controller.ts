@@ -10,6 +10,8 @@ import {
     ArchitectureEdgeType,
     ArchitectureEdgeDirection,
 } from "../types/Architecture";
+import { Project } from "../models/project.model";
+import { openRouterService } from "../services/openRouter.service";
 
 class ArchitectureController {
     // =========================================================
@@ -102,11 +104,10 @@ class ArchitectureController {
                 prompt,
             } = req.body;
 
-            if (!projectId || !prompt) {
+            if (!projectId) {
                 return res.status(400).json({
                     success: false,
-                    message:
-                        "projectId and prompt are required",
+                    message: "projectId is required",
                 });
             }
 
@@ -133,24 +134,15 @@ class ArchitectureController {
                 });
             }
 
-            /*
-             * AI integration goes here.
-             *
-             * Expected result:
-             *
-             * {
-             *   nodes: IArchitectureNode[],
-             *   edges: IArchitectureEdge[]
-             * }
-             */
+            const project = await Project.findById(projectId).populate("techStackId");
 
-            const aiResult: {
-                nodes: IArchitectureNode[];
-                edges: IArchitectureEdge[];
-            } = {
-                nodes: [],
-                edges: [],
-            };
+            const aiResult = await openRouterService.generateArchitecture({
+                prompt: prompt || undefined,
+                projectName: project?.name,
+                projectDescription: project?.description,
+                projectType: project?.type,
+                techStack: project?.techStackId,
+            });
 
             const architecture =
                 await Architecture.create({
@@ -159,13 +151,19 @@ class ArchitectureController {
                     edges: aiResult.edges,
                 });
 
+            if (project) {
+                project.architectureId =
+                    architecture._id as mongoose.Types.ObjectId;
+                await project.save();
+            }
+
             return res.status(201).json({
                 success: true,
                 message:
                     "Architecture generated successfully",
                 architecture,
             });
-        } catch (error) {
+        } catch (error: any) {
             console.error(
                 "createArchitectureWithAI:",
                 error
@@ -174,6 +172,7 @@ class ArchitectureController {
             return res.status(500).json({
                 success: false,
                 message:
+                    error.message ||
                     "Failed to generate architecture",
             });
         }
@@ -754,17 +753,36 @@ class ArchitectureController {
                 });
             }
 
-            const architecture =
-                await Architecture.findOneAndUpdate(
+            // Check if edge already exists in this architecture
+            const existingArch = await Architecture.findOne({
+                _id: architectureId,
+                "edges.id": edge.id,
+            });
+
+            let architecture;
+
+            if (existingArch) {
+                architecture = await Architecture.findOneAndUpdate(
                     {
                         _id: architectureId,
-                        "nodes.id": {
-                            $all: [
-                                edge.source,
-                                edge.target,
-                            ],
+                        "edges.id": edge.id,
+                    },
+                    {
+                        $set: {
+                            "edges.$": edge,
+                        },
+                        $inc: {
+                            version: 1,
                         },
                     },
+                    {
+                        new: true,
+                        runValidators: true,
+                    }
+                );
+            } else {
+                architecture = await Architecture.findByIdAndUpdate(
+                    architectureId,
                     {
                         $push: {
                             edges: edge,
@@ -778,12 +796,13 @@ class ArchitectureController {
                         runValidators: true,
                     }
                 );
+            }
 
             if (!architecture) {
                 return res.status(404).json({
                     success: false,
                     message:
-                        "Architecture not found or source/target node does not exist",
+                        "Architecture not found",
                 });
             }
 

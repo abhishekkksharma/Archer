@@ -121,3 +121,13 @@ input:-webkit-autofill:active {
       20px 0;
   }
 }
+
+@keyframes architecture-edge-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+
+  to {
+    stroke-dashoffset: -28;
+  }
+}

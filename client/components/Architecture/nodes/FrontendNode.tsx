@@ -1,4 +1,7 @@
 import BaseArchitectureNode from './BaseArchitectureNode';
+import {UserRound} from "lucide-react"
+
+import { BaseNodeData } from './BaseArchitectureNode';
 
 export default function FrontendNode(props: any) {
   return (
