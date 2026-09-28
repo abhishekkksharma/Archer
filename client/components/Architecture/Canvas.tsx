@@ -17,7 +17,7 @@ import {
   type EdgeChange,
 } from '@xyflow/react';
 
-import FrontendNode from '@/components/Architecture/nodes/FrontendNode';
+import ServiceNode2 from './nodes/ServiceNode2';
 import BackendNode from '@/components/Architecture/nodes/BackendNode';
 import DatabaseNode from '@/components/Architecture/nodes/DatabaseNode';
 import QueueNode from '@/components/Architecture/nodes/QueueNode';
@@ -60,9 +60,9 @@ const nodeTypes: Record<ArchitectureNodeType, React.ComponentType<any>> = {
   frontend: FrontendNew,
   backend: BackendNode,
   api: BackendNode,
-  service: ServiceNode,
-  microservice: ServiceNode,
-  worker: ServiceNode,
+  service: ServiceNode2,
+  microservice: ServiceNode2,
+  worker: ServiceNode2,
 
   // Data
   database: DatabaseNode,
@@ -80,42 +80,42 @@ const nodeTypes: Record<ArchitectureNodeType, React.ComponentType<any>> = {
   pubsub: QueueNode,
 
   // Infrastructure
-  'load-balancer': ServiceNode,
-  'api-gateway': ServiceNode,
-  'reverse-proxy': ServiceNode,
-  cdn: ServiceNode,
-  dns: ServiceNode,
-  server: ServiceNode,
+  'load-balancer': ServiceNode2,
+  'api-gateway': ServiceNode2,
+  'reverse-proxy': ServiceNode2,
+  cdn: ServiceNode2,
+  dns: ServiceNode2,
+  server: ServiceNode2,
   container: ServiceNodeContainer,
-  serverless: ServiceNode,
+  serverless: ServiceNode2,
 
   // Security
-  auth: ServiceNode,
-  'identity-provider': ServiceNode,
-  firewall: ServiceNode,
-  'secret-manager': ServiceNode,
+  auth: ServiceNode2,
+  'identity-provider': ServiceNode2,
+  firewall: ServiceNode2,
+  'secret-manager': ServiceNode2,
 
   // External Services
-  'external-service': ServiceNode,
-  'external-api': ServiceNode,
-  payment: ServiceNode,
-  email: ServiceNode,
-  notification: ServiceNode,
-  github: ServiceNode,
-  analytics: ServiceNode,
+  'external-service': ServiceNode2,
+  'external-api': ServiceNode2,
+  payment: ServiceNode2,
+  email: ServiceNode2,
+  notification: ServiceNode2,
+  github: ServiceNode2,
+  analytics: ServiceNode2,
 
   // AI / ML
-  'ai-service': ServiceNode,
-  'ml-model': ServiceNode,
+  'ai-service': ServiceNode2,
+  'ml-model': ServiceNode2,
   'vector-database': DatabaseNode,
-  'embedding-service': ServiceNode,
+  'embedding-service': ServiceNode2,
 
   // Architecture Groups
   'container-group': ServiceNodeContainer,
   'service-group': ServiceNodeContainer,
 
   // Generic
-  custom: ServiceNode,
+  custom: ServiceNode2,
 };
 
 const edgeTypes = {
@@ -211,170 +211,6 @@ const getToken = (): string | null => {
   );
 };
 
-const initialNodes: ArchitectureNode[] = [
-  {
-    id: 'frontend',
-    type: 'frontend',
-    position: {
-      x: 100,
-      y: 250,
-    },
-    data: {
-      label: 'Frontend',
-      description: 'User interface',
-      technology: 'React + Tailwind',
-    },
-  },
-
-  {
-    id: 'backend',
-    type: 'backend',
-    position: {
-      x: 450,
-      y: 250,
-    },
-    data: {
-      label: 'Backend API',
-      description: 'Business logic and APIs',
-      technology: 'Node.js + Express',
-    },
-  },
-
-  {
-    id: 'database',
-    type: 'database',
-    position: {
-      x: 800,
-      y: 250,
-    },
-    data: {
-      label: 'Database',
-      description: 'Application data',
-      technology: 'MongoDB',
-    },
-  },
-
-  {
-    id: 'github',
-    type: 'service',
-    position: {
-      x: 800,
-      y: 500,
-    },
-    data: {
-      label: 'GitHub API',
-      description: 'Repository information',
-      technology: 'GitHub REST API',
-    },
-  },
-
-  {
-    id: 'queue',
-    type: 'queue',
-    position: {
-      x: 450,
-      y: 500,
-    },
-    data: {
-      label: 'Message Queue',
-      description: 'Asynchronous communication',
-      technology: 'Redis',
-    },
-  },
-
-  {
-    id: 'auth',
-    type: 'service',
-    position: {
-      x: 450,
-      y: 50,
-    },
-    data: {
-      label: 'Auth Service',
-      description: 'Authentication and authorization',
-      technology: 'JWT',
-    },
-  },
-];
-
-const initialEdges: ArchitectureEdgeType[] = [
-  {
-    id: 'frontend-backend',
-    source: 'frontend',
-    target: 'backend',
-    type: 'architecture',
-    data: {
-      label: 'API Request',
-      color: '#3b82f6',
-      direction: 'uni',
-      dataFlow: true,
-    },
-  },
-
-  {
-    id: 'backend-database',
-    source: 'backend',
-    target: 'database',
-    type: 'architecture',
-    data: {
-      label: 'CRUD',
-      direction: 'bi',
-      dataFlow: true,
-    },
-  },
-
-  {
-    id: 'backend-github',
-    source: 'backend',
-    target: 'github',
-    type: 'architecture',
-    data: {
-      label: 'REST API',
-      color: '#8b5cf6',
-      direction: 'uni',
-      dataFlow: false,
-    },
-  },
-
-  {
-    id: 'backend-queue',
-    source: 'backend',
-    target: 'queue',
-    type: 'architecture',
-    data: {
-      label: 'Events',
-      color: '#f59e0b',
-      direction: 'uni',
-      dataFlow: true,
-    },
-  },
-
-  {
-    id: 'frontend-auth',
-    source: 'frontend',
-    target: 'auth',
-    type: 'architecture',
-    data: {
-      label: 'Login',
-      color: '#ef4444',
-      direction: 'uni',
-      dataFlow: false,
-    },
-  },
-
-  {
-    id: 'auth-backend',
-    source: 'auth',
-    target: 'backend',
-    type: 'architecture',
-    data: {
-      label: 'JWT',
-      color: '#ec4899',
-      direction: 'uni',
-      dataFlow: true,
-    },
-  },
-];
 
 type ArchitectureCanvasProps = {
   projectId?: string;
@@ -492,12 +328,12 @@ function ArchitectureCanvas({
       setDefaultViewport(savedPosition);
     }
 
-    if (!projectId) {
-      setNodes(initialNodes);
-      setEdges(initialEdges);
-      setLoading(false);
-      return;
-    }
+    // if (!projectId) {
+    //   setNodes(initialNodes);
+    //   setEdges(initialEdges);
+    //   setLoading(false);
+    //   return;
+    // }
 
     const fetchOrGenerateArchitecture = async () => {
       try {
@@ -532,8 +368,8 @@ function ArchitectureCanvas({
               ? data.architecture.edges.map(mapBackendEdge)
               : [];
 
-            setNodes(fetchedNodes.length > 0 ? fetchedNodes : initialNodes);
-            setEdges(fetchedEdges.length > 0 ? fetchedEdges : initialEdges);
+            setNodes(fetchedNodes.length > 0 ? fetchedNodes : {});
+            setEdges(fetchedEdges.length > 0 ? fetchedEdges : {});
 
             if (!savedPosition && data.architecture.viewport) {
               setDefaultViewport(data.architecture.viewport);
@@ -572,8 +408,8 @@ function ArchitectureCanvas({
                 ? arch.edges.map(mapBackendEdge)
                 : [];
 
-              setNodes(genNodes.length > 0 ? genNodes : initialNodes);
-              setEdges(genEdges.length > 0 ? genEdges : initialEdges);
+              setNodes(genNodes.length > 0 ? genNodes : {});
+              setEdges(genEdges.length > 0 ? genEdges : {});
               setLoading(false);
               return;
             } else {

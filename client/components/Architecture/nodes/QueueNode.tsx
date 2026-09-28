@@ -9,7 +9,7 @@ export default function QueueNode({ data }: any) {
       <Handle
         type="target"
         position={Position.Left}
-        className="!bg-orange-500"
+        className="bg-orange-500!"
       />
 
       <div className="text-sm font-semibold text-gray-900">

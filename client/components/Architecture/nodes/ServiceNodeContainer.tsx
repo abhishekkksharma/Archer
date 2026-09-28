@@ -8,7 +8,7 @@ import {
 import { getTechIcon } from "@/assets/tech-icons/tech-icons";
 import Image from "next/image";
 
-function ServiceNode2({ data }: any) {
+function ServiceNodeContainer({ data }: any) {
   const nodeData = data as BaseNodeData;
 
   const techIcon = nodeData.technology
@@ -82,4 +82,4 @@ function ServiceNode2({ data }: any) {
   );
 }
 
-export default ServiceNode2;
+export default ServiceNodeContainer;
