@@ -55,9 +55,12 @@ STRICT CONSTRAINTS & RULES:
    - Provide a balanced end-to-end architecture (typically 5 to 8 nodes) covering all essential architectural tiers from Client to Database/External Services.
    - Represent core architectural layers clearly (e.g. Frontend App, API Gateway / Router, Auth Service, Backend Services, Primary Database, and External APIs). Avoid trivial 2-node setups while avoiding bloated 15-node microservice webs.
 
-3. JSON OUTPUT ONLY:
-   - You MUST respond with ONLY a valid JSON object (no markdown formatting, no \`\`\`json tags, no extra preambles or explanations outside JSON).
+3. STRICT RAW JSON OUTPUT ONLY:
+   - You MUST respond with ONLY a raw, valid JSON object starting with '{' and ending with '}'.
    - The JSON object MUST contain exactly two top-level keys: "nodes" and "edges".
+   - Do NOT include any reasoning, thinking process, preambles, intros, or conclusions.
+   - Do NOT wrap the JSON inside markdown code blocks (do NOT use \`\`\`json or \`\`\` tags).
+   - Output ONLY the raw JSON string.
 
 4. "nodes" MUST be an array of architecture node objects adhering strictly to this schema:
 {

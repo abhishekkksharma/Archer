@@ -368,8 +368,8 @@ function ArchitectureCanvas({
               ? data.architecture.edges.map(mapBackendEdge)
               : [];
 
-            setNodes(fetchedNodes.length > 0 ? fetchedNodes : {});
-            setEdges(fetchedEdges.length > 0 ? fetchedEdges : {});
+            setNodes(fetchedNodes);
+            setEdges(fetchedEdges);
 
             if (!savedPosition && data.architecture.viewport) {
               setDefaultViewport(data.architecture.viewport);
@@ -408,8 +408,8 @@ function ArchitectureCanvas({
                 ? arch.edges.map(mapBackendEdge)
                 : [];
 
-              setNodes(genNodes.length > 0 ? genNodes : {});
-              setEdges(genEdges.length > 0 ? genEdges : {});
+              setNodes(genNodes);
+              setEdges(genEdges);
               setLoading(false);
               return;
             } else {
@@ -638,8 +638,8 @@ function ArchitectureCanvas({
   return (
     <div className="relative h-full w-full">
       <ReactFlow
-        nodes={nodes}
-        edges={edges}
+        nodes={Array.isArray(nodes) ? nodes : []}
+        edges={Array.isArray(edges) ? edges : []}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onNodesChange={handleNodesChange}

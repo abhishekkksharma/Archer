@@ -42,6 +42,7 @@ export interface IArchitectureEdgeData {
   description?: string;
 
   direction?: ArchitectureEdgeDirection;
+  color?: string;
 
   properties?: Record<string, unknown>;
 }

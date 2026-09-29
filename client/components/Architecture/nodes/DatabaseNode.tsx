@@ -5,6 +5,8 @@ import {
   type NodeProps,
 } from '@xyflow/react';
 import { Database } from 'lucide-react';
+import { getTechIcon } from '@/assets/tech-icons/tech-icons';
+import Image from 'next/image';
 
 type DatabaseNodeData = {
   label: string;
@@ -22,6 +24,10 @@ export default function DatabaseNode({
   const color = data.color ?? '#0D47A1';
   const size = data.size ?? 100;
   const iconSize = size * 0.75;
+
+  const techIcon = data.technology
+      ? getTechIcon(data.technology)
+      : null;
 
   return (
     <div
@@ -42,12 +48,18 @@ export default function DatabaseNode({
           height: iconSize,
         }}
       >
-        <Database
+        {techIcon ? (
+          <div>
+            <Image className='w-14 h-14' src={techIcon} alt='tech-icon'/>
+          </div>
+        ):(
+          <Database
           size={iconSize}
           strokeWidth={1.2}
           className=''
           color={color}
         />
+        )}
       </div>
 
       {/* Label */}
