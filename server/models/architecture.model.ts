@@ -102,7 +102,7 @@ const architectureNodeDataSchema = new Schema<IArchitectureNodeData>(
 
     category: {
       type: String,
-      required: true,
+      default: "Service",
       trim: true,
     },
 

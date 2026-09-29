@@ -8,6 +8,7 @@ export type BaseNodeData = {
   label: string;
   description?: string;
   technology?: string;
+  technologies?:string[];
   icon?: string;
 };
 

@@ -37,7 +37,9 @@ import CanvasControls from './canvas/CanvasControls';
 import Loader from '@/components/Loader';
 
 import { architectureUtils } from '@/utils/Architecture';
-import EdgeEditor from './edges/EdgeEditor';
+import EdgeEditor from './toolbar/EdgeEditor';
+import NodeEditor from './toolbar/NodeEditor';
+import { nodeEditorutils } from '@/utils/Archiecture.node';
 import CustomEdge from '@/components/Architecture/edges/CustomEdge';
 
 import type {
@@ -125,7 +127,7 @@ const edgeTypes = {
 const mapBackendNode = (node: any): ArchitectureNode => {
   const rawType = String(node.type || '').toLowerCase() as ArchitectureNodeType;
   const nodeType = nodeTypes[rawType] ? rawType : 'service';
-  
+
   return {
     id: String(node.id),
     type: nodeType,
@@ -138,7 +140,7 @@ const mapBackendNode = (node: any): ArchitectureNode => {
       description: String(node.data?.description || ''),
       technology: String(
         node.data?.technology ||
-          (Array.isArray(node.data?.technologies) ? node.data.technologies.join(', ') : '')
+        (Array.isArray(node.data?.technologies) ? node.data.technologies.join(', ') : '')
       ),
       color: node.data?.color || undefined,
     },
@@ -171,9 +173,9 @@ const mapBackendEdge = (edge: any): ArchitectureEdgeType => {
     else color = '#3b82f6';
   }
 
-  const directionMapping: 'uni' | 'bi' | 'none' = 
+  const directionMapping: 'uni' | 'bi' | 'none' =
     rawDirection === 'bidirectional' ? 'bi' :
-    rawDirection === 'response' ? 'uni' : 'uni';
+      rawDirection === 'response' ? 'uni' : 'uni';
 
   return {
     id: String(edge.id || `${edge.source}-${edge.target}`),
@@ -251,6 +253,9 @@ function ArchitectureCanvas({
   const [selectedEdge, setSelectedEdge] =
     useState<ArchitectureEdgeType | null>(null);
 
+  const [selectedNode, setSelectedNode] =
+    useState<ArchitectureNode | null>(null);
+
   const debounceTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   useEffect(() => {
@@ -327,13 +332,6 @@ function ArchitectureCanvas({
     if (savedPosition) {
       setDefaultViewport(savedPosition);
     }
-
-    // if (!projectId) {
-    //   setNodes(initialNodes);
-    //   setEdges(initialEdges);
-    //   setLoading(false);
-    //   return;
-    // }
 
     const fetchOrGenerateArchitecture = async () => {
       try {
@@ -446,6 +444,49 @@ function ArchitectureCanvas({
       );
     },
     [projectId]
+  );
+
+  const handleDeleteNode = useCallback(
+    async (nodeId: string) => {
+      setNodes((currentNodes) => currentNodes.filter((n) => n.id !== nodeId));
+      setEdges((currentEdges) =>
+        currentEdges.filter((e) => e.source !== nodeId && e.target !== nodeId)
+      );
+      setSelectedNode((currentSelected) =>
+        currentSelected?.id === nodeId ? null : currentSelected
+      );
+
+      if (!architectureId) return;
+
+      try {
+        await nodeEditorutils.deleteNode(architectureId, nodeId);
+      } catch (err) {
+        console.error('Failed to delete node on server:', err);
+      }
+    },
+    [architectureId, setNodes, setEdges]
+  );
+
+  const handleUpdateNode = useCallback(
+    async (updatedNode: ArchitectureNode) => {
+      setNodes((currentNodes) =>
+        currentNodes.map((n) => (n.id === updatedNode.id ? updatedNode : n))
+      );
+      setSelectedNode(updatedNode);
+
+      if (!architectureId) return;
+
+      try {
+        await nodeEditorutils.updateNode(architectureId, updatedNode.id, {
+          type: updatedNode.type,
+          position: updatedNode.position,
+          data: updatedNode.data,
+        });
+      } catch (err) {
+        console.error('Failed to update node on server:', err);
+      }
+    },
+    [architectureId, setNodes]
   );
 
   const handleDeleteEdge = useCallback(
@@ -615,23 +656,23 @@ function ArchitectureCanvas({
   if (errorText) {
     return (
       <div className="flex min-h-100 h-full w-full items-center justify-center bg-white p-6 text-center dark:bg-zinc-950">
-  <div className="w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900/40">
-    <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-      Architecture generation failed
-    </h3>
+        <div className="max-w-sm">
+          <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            Architecture generation failed
+          </h3>
 
-    <p className="mt-2 text-sm leading-5 text-zinc-500 dark:text-zinc-400">
-      {errorText}
-    </p>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            {errorText}
+          </p>
 
-    <button
-      onClick={() => window.location.reload()}
-      className="mt-4 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
-    >
-      Retry
-    </button>
-  </div>
-</div>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-3 text-sm font-medium text-zinc-900 underline underline-offset-4 hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-400"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
     );
   }
 
@@ -646,11 +687,18 @@ function ArchitectureCanvas({
         onEdgesChange={handleEdgesChange}
         onConnect={onConnect}
         onMoveEnd={onMoveEnd}
-        onEdgeClick={(_event, edge) =>
-          setSelectedEdge(edge as ArchitectureEdgeType)
-        }
-        onPaneClick={() => setSelectedEdge(null)}
-        onNodeClick={() => setSelectedEdge(null)}
+        onEdgeClick={(_event, edge) => {
+          setSelectedEdge(edge as ArchitectureEdgeType);
+          setSelectedNode(null);
+        }}
+        onPaneClick={() => {
+          setSelectedEdge(null);
+          setSelectedNode(null);
+        }}
+        onNodeClick={(_event, node) => {
+          setSelectedNode(node as ArchitectureNode);
+          setSelectedEdge(null);
+        }}
         defaultViewport={defaultViewport}
         fitView={!defaultViewport}
         fitViewOptions={{
@@ -670,6 +718,17 @@ function ArchitectureCanvas({
               onUpdate={handleUpdateEdge}
               onDelete={handleDeleteEdge}
               onClose={() => setSelectedEdge(null)}
+            />
+          </Panel>
+        )}
+        {selectedNode && (
+          <Panel position="top-right">
+            <NodeEditor
+              node={selectedNode}
+              architectureId={architectureId || undefined}
+              onUpdate={handleUpdateNode}
+              onDelete={handleDeleteNode}
+              onClose={() => setSelectedNode(null)}
             />
           </Panel>
         )}

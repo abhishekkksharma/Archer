@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, ArrowRightLeft, Minus, Trash2, X, Check } from 'lucide-react';
-import type { ArchitectureEdgeType } from './CustomEdge';
+import type { ArchitectureEdgeType } from '../edges/CustomEdge';
 
 export interface EdgeEditorProps {
   edge: ArchitectureEdgeType;
