@@ -47,6 +47,7 @@ import type {
   ArchitectureEdgeType as SystemArchitectureEdgeType,
   ArchitectureEdgeDirection,
 } from '@/types/Architecture';
+import MessageQueNode from './nodes/MessageQueNode';
 
 type ArchitectureNodeData = {
   label: string;
@@ -76,7 +77,7 @@ const nodeTypes: Record<ArchitectureNodeType, React.ComponentType<any>> = {
   'file-storage': DatabaseNode,
 
   // Messaging
-  queue: QueueNode,
+  queue: MessageQueNode,
   'message-broker': QueueNode,
   'event-bus': QueueNode,
   pubsub: QueueNode,
