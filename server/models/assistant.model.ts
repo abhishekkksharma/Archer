@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IChatMessage {
-  role: "user" | "assistant";
+  role: "user" | "system" | "assistant";
   content: string;
   timestamp: Date;
 }
@@ -18,20 +18,25 @@ const chatMessageSchema = new Schema<IChatMessage>(
   {
     role: {
       type: String,
-      enum: ["user", "assistant"],
+      enum: ["user", "system", "assistant"],
       required: true,
     },
+
     content: {
       type: String,
       required: true,
+      trim: true,
     },
+
     timestamp: {
       type: Date,
       required: true,
       default: Date.now,
     },
   },
-  { _id: false }
+  {
+    _id: false,
+  }
 );
 
 const chatSchema = new Schema<IChat>(
@@ -42,31 +47,27 @@ const chatSchema = new Schema<IChat>(
       required: true,
       index: true,
     },
+
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
       index: true,
     },
-    messages: [chatMessageSchema],
+
+    messages: {
+      type: [chatMessageSchema],
+      default: [],
+    },
   },
   {
     timestamps: true,
-    toJSON: {
-      transform: (_doc: any, ret: any) => {
-        delete (ret as any).__v;
-        return ret;
-      },
-    },
-    toObject: {
-      transform: (_doc: any, ret: any) => {
-        delete (ret as any).__v;
-        return ret;
-      },
-    },
   }
 );
 
-chatSchema.index({ projectId: 1, userId: 1 });
+chatSchema.index({
+  projectId: 1,
+  userId: 1,
+});
 
 export const Chat = mongoose.model<IChat>("Chat", chatSchema);

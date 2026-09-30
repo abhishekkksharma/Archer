@@ -2,10 +2,11 @@
 
 import React, { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import SystemMessage from "./SystemMessage";
 
 interface MessageProps {
   message: string;
-  role: "system" | "user";
+  role: "system" | "user" | "assistant";
 }
 
 function Message({ message, role }: MessageProps) {
@@ -35,41 +36,34 @@ function Message({ message, role }: MessageProps) {
           ${isUser ? "justify-end" : "justify-start"}
         `}
       >
-        <div
-          className={`
-            max-w-[85%]
-            px-4 py-3
-            text-sm leading-6
-            shadow-sm
-            transition-colors
-            sm:max-w-[75%]
-            lg:max-w-[65%]
+        {isUser ? (
+          <div
+            className="
+              max-w-[85%]
+              rounded-2xl
+              rounded-br-none
+              bg-zinc-200/50
+              px-4
+              py-3
+              text-sm
+              leading-6
+              text-zinc-800
+              shadow-sm
 
-            ${
-              isUser
-                ? `
-                  rounded-2xl
-                  rounded-tr-md
-                  bg-black
-                  text-white
-                  dark:bg-zinc-100
-                  dark:text-black
-                `
-                : `
-                  rounded-2xl
-                  rounded-tl-md
-                  bg-zinc-100
-                  text-zinc-800
-                  dark:bg-zinc-900
-                  dark:text-zinc-200
-                `
-            }
-          `}
-        >
-          <p className="whitespace-pre-wrap break-words">
-            {message}
-          </p>
-        </div>
+              sm:max-w-[75%]
+              lg:max-w-[65%]
+
+              dark:bg-zinc-800
+              dark:text-white
+            "
+          >
+            <p className="whitespace-pre-wrap break-words">
+              {message}
+            </p>
+          </div>
+        ) : (
+          <SystemMessage message={message} />
+        )}
       </div>
 
       <div
@@ -79,11 +73,12 @@ function Message({ message, role }: MessageProps) {
           items-center
           px-2
           pt-1
+          opacity-0
           transition-opacity
           duration-150
-          opacity-0
           group-hover:opacity-100
           group-focus-within:opacity-100
+
           ${isUser ? "justify-end" : "justify-start"}
         `}
       >
@@ -100,10 +95,13 @@ function Message({ message, role }: MessageProps) {
             rounded-md
 
             text-zinc-400
-            transition-colors
+            transition-all
+            duration-150
 
             hover:bg-zinc-100
             hover:text-zinc-700
+
+            active:scale-90
 
             dark:text-zinc-500
             dark:hover:bg-zinc-800

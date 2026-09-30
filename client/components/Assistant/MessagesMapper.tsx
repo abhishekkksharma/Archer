@@ -1,89 +1,63 @@
-import React from "react";
-import Message from "./Message";
+"use client";
 
-interface MessageData {
-  id: number;
-  role: "system" | "user";
-  message: string;
+import React, { useEffect, useRef } from "react";
+import Message from "./Message";
+import AssistantSkeleton from "./AssistantSkeleton";
+
+export interface MessageData {
+  _id?: string;
+  id?: string | number;
+  role: "system" | "user" | "assistant";
+  content?: string;
+  message?: string;
 }
 
-const messages: MessageData[] = [
-  {
-    id: 1,
-    role: "user",
-    message:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eveniet aut velit beatae dolor architecto perspiciatis libero commodi ducimus!",
-  },
-  {
-    id: 2,
-    role: "system",
-    message:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eveniet aut velit beatae dolor architecto perspiciatis libero commodi ducimus! Iusto beatae illum provident voluptatem ex dolor laboriosam.",
-  },
-  {
-    id: 3,
-    role: "user",
-    message:
-      "Can you explain how this works in a little more detail?",
-  },
-  {
-    id: 4,
-    role: "system",
-    message:
-      "Sure. The messages are rendered dynamically from an array, which makes it easy to replace the static data with messages coming from your API or database later.",
-  },
-  {
-    id: 5,
-    role: "user",
-    message:
-      "Sure. The messages are rendered dynamically from an array, which makes it easy to replace the static data with messages coming from your API or database later.",
-  },
-  {
-    id: 6,
-    role: "system",
-    message:
-      "Sure. The messages are rendered dynamically from an array, which makes it easy to replace the static data with messages coming from your API or database later.",
-  },
-  {
-    id: 7,
-    role: "user",
-    message:
-      "Sure. The messages are rendered dynamically from an array, which makes it easy to replace the static data with messages coming from your API or database later.",
-  },
-  {
-    id: 8,
-    role: "system",
-    message:
-      "Sure. The messages are rendered dynamically from an array, which makes it easy to replace the static data with messages coming from your API or database later.",
-  },
-  {
-    id: 9,
-    role: "user",
-    message:
-      "Sure. The messages are rendered dynamically from an array, which makes it easy to replace the static data with messages coming from your API or database later.",
-  },
-];
+interface MessagesMapperProps {
+  messages?: MessageData[];
+  isLoading?: boolean;
+}
 
-function MessagesMapper() {
+function MessagesMapper({ messages = [], isLoading = false }: MessagesMapperProps) {
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages.length, isLoading]);
+
   return (
     <div
       className="
-        flex
+        h-full
         w-full
-        flex-col
-        gap-4
+        overflow-y-auto
         px-3
-        py-4
         sm:px-5
       "
     >
-      {messages.map((message) => (
-        <Message
-          key={message.id}
-          role={message.role}
-          message={message.message}
-        />
-      ))}
+      <div
+        className="
+          flex
+          min-h-full
+          flex-col
+          gap-2
+          pt-6
+          pb-30
+        "
+      >
+        {messages.map((message, index) => (
+          <Message
+            key={message._id || message.id || `msg-${index}`}
+            role={message.role}
+            message={message.message || message.content || ""}
+          />
+        ))}
+
+        {isLoading && <AssistantSkeleton />}
+
+        <div ref={bottomRef} />
+      </div>
     </div>
   );
 }

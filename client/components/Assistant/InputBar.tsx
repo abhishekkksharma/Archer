@@ -136,9 +136,9 @@ function InputBar({
         focus-within:border-zinc-300
         focus-within:shadow-md
 
-        dark:border-zinc-800/40
-        dark:bg-zinc-950
-        dark:focus-within:border-zinc-800
+        dark:border-zinc-800
+        dark:bg-zinc-900
+        dark:focus-within:border-zinc-700
       "
     >
       <input
@@ -163,7 +163,7 @@ function InputBar({
           disabled:opacity-50
 
           dark:text-zinc-100
-          dark:placeholder:text-zinc-600
+          dark:placeholder:text-zinc-400
         "
       />
 

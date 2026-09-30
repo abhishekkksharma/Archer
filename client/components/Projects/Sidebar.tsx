@@ -38,7 +38,7 @@ const GithubIcon = ({
     alt="GitHub"
     width={size}
     height={size}
-    className={`dark:invert ${className}`}
+    className={`dark:invert opacity-70 ${className}`}
   />
 );
 
@@ -58,11 +58,11 @@ const sidebarItems = [
     href: "/tasks",
     icon: CheckSquare,
   },
-  {
-    name: "analysis",
-    href: "/analysis",
-    icon: BarChart3,
-  },
+  // {
+  //   name: "analysis",
+  //   href: "/analysis",
+  //   icon: BarChart3,
+  // },
   {
     name: "architecture",
     href: "/architecture",
@@ -181,7 +181,7 @@ function Sidebar({
           md:hidden
         "
       >
-        <ChevronRight className={` ${isOpen ?  "invisible opacity-0":"visible opacity-100"}`} size={25} strokeWidth={3} />
+        <ChevronRight className={` ${isOpen ? "invisible opacity-0" : "visible opacity-100"}`} size={25} strokeWidth={3} />
       </button>
 
       {/* =========================================================
@@ -236,10 +236,9 @@ function Sidebar({
           duration-200
           ease-in-out
 
-          ${
-            isOpen
-              ? "translate-x-0"
-              : "-translate-x-full"
+          ${isOpen
+            ? "translate-x-0"
+            : "-translate-x-full"
           }
 
           md:relative
@@ -457,9 +456,8 @@ function Sidebar({
 
                     transition-colors
 
-                    ${
-                      isActive
-                        ? `
+                    ${isActive
+                      ? `
                           bg-zinc-100
                           font-semibold
                           text-zinc-900
@@ -467,7 +465,7 @@ function Sidebar({
                           dark:bg-zinc-900
                           dark:text-zinc-100
                         `
-                        : `
+                      : `
                           text-zinc-600
 
                           hover:bg-zinc-100/70
@@ -487,13 +485,12 @@ function Sidebar({
                       shrink-0
                       transition-colors
 
-                      ${
-                        isActive
-                          ? `
+                      ${isActive
+                        ? `
                             text-blue-600
                             dark:text-blue-400
                           `
-                          : `
+                        : `
                             text-zinc-500
 
                             group-hover:text-zinc-700
