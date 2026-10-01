@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { ArrowUpRight, Mail } from "lucide-react";
+import { ArrowUpRight, Mail, Phone } from "lucide-react";
 import MailImg from "@/assets/Footer/mail.png";
 import { usePopup } from "../Popup/PopupContext";
 
@@ -320,6 +320,23 @@ function Footer() {
               <Mail size={16} />
               abhisheksharma7340733@gmail.com
             </a>
+            <p
+              className="
+                mt-4
+                flex
+                items-center
+                gap-2
+                text-sm
+                text-zinc-500
+                dark:text-zinc-400
+                transition-colors
+                hover:text-blue-600
+                dark:hover:text-blue-400
+              "
+            >
+              <Phone size={16} />
+              +91 7340733286
+            </p>
           </div>
         </div>
 

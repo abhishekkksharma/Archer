@@ -108,13 +108,27 @@ export default function ProjectAssistantPage() {
     }
   };
 
+  const hasMessages = messages.length > 0;
+
   return (
-    <div className="px-[20%]">
-      <div>
-        <MessagesMapper messages={messages} isLoading={sending} />
-      </div>
-      <div className="flex justify-center">
-        <InputBar onSubmit={handlePrompt} buttonDisabled={sending} />
+    <div
+      className={`flex w-full flex-col px-[5%] md:px-[20%] ${hasMessages ? "" : "h-[calc(100vh-100px)] items-center justify-center"
+        }`}
+    >
+      {hasMessages && (
+        <div className="w-full">
+          <MessagesMapper messages={messages} isLoading={sending} />
+        </div>
+      )}
+
+      <div className={hasMessages ? "" : "flex flex-col items-center gap-8 w-full justify-center"}>
+        <p className={` text-4xl ${hasMessages ? "hidden" : "flex"}`}>Start building with Archer</p>
+        {/* <button>go down</button> */}
+        <InputBar
+          position={hasMessages ? "fixed" : "center"}
+          onSubmit={handlePrompt}
+          buttonDisabled={sending}
+        />
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, LayoutDashboard, LogOut } from "lucide-react";
+import { ChevronDown, LayoutDashboard, LogOut, UserPen } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 
 import {
@@ -78,8 +78,8 @@ function ProfileButton({ scrolled }: ProfileButtonProps) {
             hover:backdrop-blur-xl
             hover:shadow-lg
             cursor-pointer
-            ${scrolled 
-              ? "text-black hover:border-black/[0.12] hover:bg-black/[0.05] hover:shadow-black/5" 
+            ${scrolled
+              ? "text-black hover:border-black/[0.12] hover:bg-black/[0.05] hover:shadow-black/5"
               : "text-white hover:border-white/[0.12] hover:bg-white/[0.08] hover:shadow-black/20"
             }
           `}
@@ -113,8 +113,8 @@ function ProfileButton({ scrolled }: ProfileButtonProps) {
         {isOpen && (
           <div className={`
             absolute right-0 mt-2.5 w-48 rounded-xl border p-1.5 shadow-xl backdrop-blur-xl transition-all duration-200 z-50
-            ${scrolled 
-              ? "border-black/[0.08] bg-white/95 text-slate-800 shadow-black/5" 
+            ${scrolled
+              ? "border-black/[0.08] bg-white/95 text-slate-800 shadow-black/5"
               : "border-white/[0.12] bg-zinc-900/95 text-zinc-200 shadow-black/40"
             }
           `}>
@@ -123,14 +123,28 @@ function ProfileButton({ scrolled }: ProfileButtonProps) {
               onClick={() => setIsOpen(false)}
               className={`
                 flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
-                ${scrolled 
-                  ? "hover:bg-black/[0.04] hover:text-black" 
+                ${scrolled
+                  ? "hover:bg-black/[0.04] hover:text-black"
                   : "hover:bg-white/[0.08] hover:text-white"
                 }
               `}
             >
               <LayoutDashboard size={16} />
               Dashboard
+            </Link>
+            <Link
+              href="/profile"
+              onClick={() => setIsOpen(false)}
+              className={`
+                flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
+                ${scrolled
+                  ? "hover:bg-black/[0.04] hover:text-black"
+                  : "hover:bg-white/[0.08] hover:text-white"
+                }
+              `}
+            >
+              <UserPen size={16} />
+              Profile
             </Link>
             <div className={`my-1 h-px w-full ${scrolled ? "bg-black/[0.06]" : "bg-white/[0.08]"}`} />
             <button
@@ -160,8 +174,8 @@ function ProfileButton({ scrolled }: ProfileButtonProps) {
         backdrop-blur-md
         transition-all duration-300 ease-out
         hover:shadow-lg
-        ${scrolled 
-          ? "border-black/10 bg-black/[0.02] text-black hover:border-black/[0.18] hover:bg-black/[0.05] hover:shadow-black/5" 
+        ${scrolled
+          ? "border-black/10 bg-black/[0.02] text-black hover:border-black/[0.18] hover:bg-black/[0.05] hover:shadow-black/5"
           : "border-white/10 bg-white/[0.03] text-white hover:border-white/[0.18] hover:bg-white/[0.08] hover:shadow-black/20"
         }
       `}

@@ -7,6 +7,7 @@ interface InputBarProps {
   prompt?: string;
   buttonDisabled?: boolean;
   onSubmit?: (value: string) => void;
+  position?:string
 }
 
 interface SpeechRecognitionResultEvent extends Event {
@@ -46,6 +47,7 @@ function InputBar({
   prompt = "",
   buttonDisabled = false,
   onSubmit,
+  position=""
 }: InputBarProps) {
   const [value, setValue] = useState(prompt);
   const [isListening, setIsListening] = useState(false);
@@ -122,24 +124,23 @@ function InputBar({
 
   return (
     <div
-      className="
+      className={`
         flex w-full max-w-2xl items-center gap-2
         rounded-[26px]
         border-2 border-zinc-200/50
         bg-white
         p-2
-        absolute
         bottom-6
         shadow-lg
         transition-all duration-500
-        fixed
+        ${position=="center" ? "justify-center":"fixed"}
         focus-within:border-zinc-300
         focus-within:shadow-md
 
         dark:border-zinc-800
         dark:bg-zinc-900
         dark:focus-within:border-zinc-700
-      "
+        `}
     >
       <input
         type="text"

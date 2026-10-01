@@ -8,7 +8,7 @@ export function getCookie(name: string): string | null {
   return null;
 }
 
-const getToken = (): string | null => {
+export const getToken = (): string | null => {
   if (typeof window === 'undefined') return null;
   return (
     getCookie('token') ||

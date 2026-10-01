@@ -51,7 +51,7 @@ export default function CodeBlock({ language = "text", value }: CodeBlockProps) 
         group relative my-4 overflow-hidden rounded-2xl border transition-colors duration-200
         ${
           isDark
-            ? "border-zinc-800 bg-[#0d1117] shadow-xl"
+            ? "border-zinc-900 bg-[#0d1117] shadow-xl"
             : "border-zinc-200/90 bg-[#f8fafc] shadow-sm"
         }
       `}
@@ -67,10 +67,8 @@ export default function CodeBlock({ language = "text", value }: CodeBlockProps) 
           }
         `}
       >
-        {/* Mac-style Window Controls & Language Tag */}
         <div className="flex items-center gap-3">
           
-
           <div
             className={`
               flex items-center gap-1.5 text-xs font-mono font-medium
@@ -118,7 +116,7 @@ export default function CodeBlock({ language = "text", value }: CodeBlockProps) 
           customStyle={{
             margin: 0,
             padding: "1rem 1.25rem",
-            background: isDark ? "#0d1117" : "#f8fafc",
+            background: isDark ? "#000000" : "#f8fafc",
             fontSize: "0.825rem",
             lineHeight: "1.6",
             fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
