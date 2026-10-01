@@ -43,9 +43,10 @@ function UserInfo() {
             <div className="flex w-full flex-col justify-center gap-2 px-2 py-4 pt-10">
                 <div className="group relative w-fit rounded-full border-2 border-black dark:border-zinc-50">
                     <Image
-                        className="h-30 w-30 rounded-full"
+                        className="h-20 w-20 lg:h-30 lg:w-30 rounded-full"
                         src={avatar}
                         alt={user?.name || "User"}
+                        onClick={() => setChangeAvatar(true)}
                     />
 
                     <button
