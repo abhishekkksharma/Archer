@@ -21,7 +21,7 @@ export const OPENROUTER_PROMPTS = {
         "phaseNumber": 1,
         "title": "Phase 1: Project Setup & Architecture",
         "description": "Detailed description of phase objectives",
-        "difficulty": "easy", // MUST be "easy", "medium", or "hard"
+        "difficulty": "easy",
         "order": 1,
         "tasks": [
           {
@@ -29,9 +29,9 @@ export const OPENROUTER_PROMPTS = {
             "description": "Detailed description of task",
             "order": 1,
             "estimatedHours": 4,
-            "priority": "high", // MUST be "low", "medium", or "high"
-            "status": "not_started", // MUST be "not_started"
-            "dependencies": [] // Array of prerequisite task titles or empty array
+            "priority": "high",
+            "status": "not_started",
+            "dependencies": []
           }
         ]
       }
@@ -64,19 +64,19 @@ STRICT CONSTRAINTS & RULES:
 
 4. "nodes" MUST be an array of architecture node objects adhering strictly to this schema:
 {
-  "id": "unique_node_id", // e.g. "frontend_app", "backend_api", "auth_service", "main_db", "github_api"
-  "type": "frontend", // MUST be one of: "frontend", "backend", "api", "database", "cache", "queue", "storage", "service", "microservice", "auth", "load-balancer", "cdn", "worker", "container", "external-service", "ai-service", "custom"
+   "id": "unique_node_id",
+   "type": "frontend",
   "position": {
-    "x": 100, // X coordinate on canvas (number)
-    "y": 100  // Y coordinate on canvas (number)
+     "x": 100,
+     "y": 100
   },
   "data": {
-    "label": "Web Client", // Descriptive title of the node
-    "description": "Next.js Single Page Application", // Short description of role
-    "category": "Frontend", // Category name (e.g. "Frontend", "Backend", "Database", "Security", "Infrastructure", "AI / ML")
-    "technology": "Next.js / React", // Primary tech stack name
-    "technologies": ["React", "TypeScript", "Tailwind"], // Array of technologies
-    "color": "#3b82f6" // Hex color string for visual representation
+     "label": "Web Client",
+     "description": "Next.js Single Page Application",
+     "category": "Frontend",
+     "technology": "Next.js / React",
+     "technologies": ["React", "TypeScript", "Tailwind"],
+     "color": "#3b82f6"
   },
   "width": 220,
   "height": 120
@@ -84,18 +84,18 @@ STRICT CONSTRAINTS & RULES:
 
 5. "edges" MUST be an array of connection edge objects adhering strictly to this schema:
 {
-  "id": "edge_source_target", // e.g. "edge_frontend_backend"
-  "source": "frontend_app", // MUST match the 'id' of a valid source node
-  "target": "backend_api", // MUST match the 'id' of a valid target node
-  "type": "http", // MUST be one of: "data-flow", "http", "websocket", "event", "message-queue", "database-query", "dependency", "async", "custom"
-  "label": "HTTPS REST API", // Short label describing the interaction
-  "animated": true, // Boolean
+   "id": "edge_source_target",
+   "source": "frontend_app",
+   "target": "backend_api",
+   "type": "http",
+   "label": "HTTPS REST API",
+   "animated": true,
   "data": {
-    "protocol": "HTTPS", // e.g. "HTTPS", "WSS", "gRPC", "TCP", "SQL"
-    "method": "POST/GET", // e.g. "REST", "Pub/Sub", "SQL", "JWT"
+     "protocol": "HTTPS",
+     "method": "POST/GET",
     "dataType": "JSON",
     "description": "User authentication and API requests",
-    "direction": "request" // MUST be one of: "request", "response", "bidirectional"
+     "direction": "request"
   }
 }
 

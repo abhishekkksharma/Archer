@@ -362,6 +362,10 @@ class TechServices {
 
     return techStackDoc;
   }
+
+  public async a(){
+    
+  }
 }
 
 export const techServices = new TechServices();

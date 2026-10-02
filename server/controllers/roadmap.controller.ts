@@ -33,6 +33,15 @@ export class RoadmapController {
         });
       }
 
+      const existingRoadmap = await roadmapService.getRoadmapByProjectId(projectId);
+      if (existingRoadmap) {
+        return res.status(200).json({
+          success: true,
+          message: "Roadmap already exists for this project",
+          data: existingRoadmap,
+        });
+      }
+
       // Generate roadmap phases using OpenRouter AI
       const phases = await openRouterService.generateRoadMap({
         name: project.name,

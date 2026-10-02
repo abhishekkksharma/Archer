@@ -21,19 +21,16 @@ export interface GenerateArchitectureInput {
 
 class OpenRouterService {
   private baseUrl: string = "https://openrouter.ai/api/v1/chat/completions";
-  /**
-   * Universal AI completion caller prioritizing direct Google Gemini API (with native JSON response format)
-   * if GEMINI_API_KEY is provided, and falling back to OpenRouter API.
-   */
+  /** OpenRouter-only completion caller. Gemini is handled by GeminiService. */
   private async callAiModel(
     systemPrompt: string,
     userPrompt: string,
     maxTokens: number = 4000
   ): Promise<string> {
-    const geminiKey = process.env.GEMINI_API_KEY;
     const openRouterKey = process.env.OPENROUTER_API_KEY;
 
-    // 1. Try Direct Google Gemini API
+    // Legacy Gemini implementation retained below for reference; active Gemini
+    // calls now live in GeminiService and are orchestrated by ArchitectureService.
     // if (geminiKey && geminiKey.trim().length > 0) {
     //   const candidateModels = Array.from(
     //     new Set(
@@ -142,7 +139,7 @@ class OpenRouterService {
     //   console.warn("Direct Gemini API attempts failed. Falling back to OpenRouter API...");
     // }
 
-    // 2. Try OpenRouter API
+    // Try OpenRouter API
     if (openRouterKey && openRouterKey.trim().length > 0) {
       const openRouterModel = process.env.OPENROUTER_MODEL || "openrouter/free";
       const response = await fetch(this.baseUrl, {
@@ -156,11 +153,12 @@ class OpenRouterService {
         body: JSON.stringify({
           model: openRouterModel,
           max_tokens: maxTokens,
+          response_format: { type: "json_object" },
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
-          temperature: 0.7,
+          temperature: 0.2,
         }),
       });
 
@@ -171,7 +169,9 @@ class OpenRouterService {
 
       const data = await response.json();
       const choice = data.choices?.[0];
-      let content = choice?.message?.content || choice?.text || choice?.message?.reasoning;
+      // Reasoning is prose rather than the requested response; never parse it
+      // as the JSON payload when a provider omits its final answer.
+      let content = choice?.message?.content || choice?.text;
 
       if (Array.isArray(content)) {
         content = content.map((part: any) => part.text || String(part)).join("");
@@ -184,7 +184,15 @@ class OpenRouterService {
       return content;
     }
 
-    throw new Error("Neither GEMINI_API_KEY nor OPENROUTER_API_KEY is configured in environment variables.");
+    throw new Error("OPENROUTER_API_KEY is not configured");
+  }
+
+  public async generateJson(
+    systemPrompt: string,
+    userPrompt: string,
+    maxTokens = 4000,
+  ): Promise<string> {
+    return this.callAiModel(systemPrompt, userPrompt, maxTokens);
   }
 
   /**
@@ -324,7 +332,49 @@ class OpenRouterService {
    * Defensive helper to parse JSON, attempting repair if string was truncated by max_tokens limit or contains conversational preambles
    */
   private parseOrRepairJson(rawContent: string): any {
-    const cleaned = this.extractJsonString(rawContent);
+    const raw = rawContent.trim();
+    if (!raw) {
+      throw new Error("Empty content after JSON extraction");
+    }
+
+    // Models occasionally add prose or examples before the actual JSON. Search
+    // every complete balanced object/array before applying lossy repairs.
+    const candidates: string[] = [raw];
+    const addCandidate = (value: string) => {
+      const candidate = value.trim();
+      if (candidate && !candidates.includes(candidate)) candidates.push(candidate);
+    };
+
+    for (let start = 0; start < raw.length; start++) {
+      if (raw[start] !== "{" && raw[start] !== "[") continue;
+      const stack: string[] = [raw[start] === "{" ? "}" : "]"];
+      let inString = false;
+      let escaped = false;
+      for (let end = start + 1; end < raw.length; end++) {
+        const char = raw[end];
+        if (escaped) { escaped = false; continue; }
+        if (char === "\\") { escaped = true; continue; }
+        if (char === '"') { inString = !inString; continue; }
+        if (inString) continue;
+        if (char === "{") stack.push("}");
+        else if (char === "[") stack.push("]");
+        else if (char === "}" || char === "]") {
+          if (stack[stack.length - 1] !== char) break;
+          stack.pop();
+          if (stack.length === 0) { addCandidate(raw.slice(start, end + 1)); break; }
+        }
+      }
+    }
+
+    for (const candidate of candidates) {
+      try {
+        return JSON.parse(candidate);
+      } catch {
+        // Continue with the next complete JSON candidate.
+      }
+    }
+
+    const cleaned = this.extractJsonString(raw);
     if (!cleaned) {
       throw new Error("Empty content after JSON extraction");
     }
@@ -336,9 +386,9 @@ class OpenRouterService {
       // Continue
     }
 
-    // Attempt 2: Clean comments, single-quotes, and trailing commas
+    // Attempt 2: clean only trailing commas. Stripping // comments would
+    // corrupt valid JSON values containing HTTPS URLs.
     let sanitized = cleaned
-      .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, "") // remove JS comments
       .replace(/,\s*([\}\]])/g, "$1"); // remove trailing commas before } or ]
 
     try {
@@ -572,7 +622,9 @@ Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not spe
       }
 
       // Sanitize and validate phases and tasks
-      return phases.map((phase: any, pIndex: number) => {
+      const sanitizedPhases = phases
+        .filter((phase: any) => phase && typeof phase === "object")
+        .map((phase: any, pIndex: number) => {
         const phaseTitle = String(phase.title || `Phase ${pIndex + 1}`);
         const phaseDesc = String(phase.description || "").trim() || `${phaseTitle} objectives and setup.`;
 
@@ -612,7 +664,12 @@ Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not spe
               })
             : [],
         };
-      });
+        });
+
+      // A roadmap containing phase headers but no tasks is not actionable.
+      return sanitizedPhases.length > 0 && sanitizedPhases.some((phase: IRoadmapPhase) => phase.tasks.length > 0)
+        ? sanitizedPhases
+        : this.getDefaultRoadmapPhases(info);
     } catch (err: any) {
       console.warn("Failed to generate or parse AI roadmap, returning default fallback roadmap:", err.message);
       return this.getDefaultRoadmapPhases(info);
@@ -860,8 +917,7 @@ Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not spe
     try {
       content = await this.callAiModel(systemPrompt, userPrompt, maxTokens);
     } catch (err: any) {
-      console.warn("AI generation failed for architecture, returning default architecture:", err.message);
-      return this.getDefaultArchitecture();
+      throw new Error("OpenRouter architecture generation failed: " + err.message);
     }
 
     try {
@@ -902,7 +958,9 @@ Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not spe
       ];
 
       // Validate & sanitize nodes
-      const parsedNodes: IArchitectureNode[] = rawNodes.map((n: any, idx: number) => ({
+      const parsedNodes: IArchitectureNode[] = rawNodes
+        .filter((node: any) => node && typeof node === "object")
+        .map((n: any, idx: number) => ({
         id: String(n.id || `node_${idx + 1}`),
         type: validNodeTypes.includes(n.type) ? n.type : "service",
         position: {
@@ -924,13 +982,21 @@ Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not spe
         width: typeof n.width === "number" ? n.width : 220,
         height: typeof n.height === "number" ? n.height : 120,
         parentId: n.parentId ? String(n.parentId) : undefined,
-      }));
+        }));
+
+      if (parsedNodes.length === 0) {
+        throw new Error("AI response did not include any architecture nodes");
+      }
 
       // Apply clean column layout to avoid node overlaps
       const nodes = this.autoLayoutNodes(parsedNodes);
 
       // Validate & sanitize edges with distinct colors
-      const edges: IArchitectureEdge[] = rawEdges.map((e: any, idx: number) => {
+      const nodeIds = new Set(parsedNodes.map((node) => node.id));
+      const edges: IArchitectureEdge[] = rawEdges
+        .filter((edge: any) => edge && typeof edge === "object")
+        .filter((edge: any) => nodeIds.has(String(edge.source)) && nodeIds.has(String(edge.target)))
+        .map((e: any, idx: number) => {
         const edgeType = validEdgeTypes.includes(e.type) ? e.type : "http";
         const protocol = String(e.data?.protocol || "");
         const label = String(e.label || "");
@@ -957,14 +1023,11 @@ Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not spe
             properties: typeof e.data?.properties === "object" ? e.data.properties : {},
           },
         };
-      });
+        });
 
       return { nodes, edges };
     } catch (err: any) {
-      console.error("Failed to parse architecture AI JSON response:", content);
-      throw new Error(
-        `Failed to parse AI response into architecture format: ${err.message}`
-      );
+      throw new Error("OpenRouter architecture response was invalid: " + err.message);
     }
   }
 }

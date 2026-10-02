@@ -11,7 +11,7 @@ import {
     ArchitectureEdgeDirection,
 } from "../types/Architecture";
 import { Project } from "../models/project.model";
-import { openRouterService } from "../services/openRouter.service";
+import { architectureService } from "../services/architecture.service";
 
 class ArchitectureController {
     // =========================================================
@@ -136,7 +136,14 @@ class ArchitectureController {
 
             const project = await Project.findById(projectId).populate("techStackId");
 
-            const aiResult = await openRouterService.generateArchitecture({
+            if (!project) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Project not found",
+                });
+            }
+
+            const aiResult = await architectureService.generate({
                 prompt: prompt || undefined,
                 projectName: project?.name,
                 projectDescription: project?.description,
@@ -151,11 +158,9 @@ class ArchitectureController {
                     edges: aiResult.edges,
                 });
 
-            if (project) {
-                project.architectureId =
-                    architecture._id as mongoose.Types.ObjectId;
-                await project.save();
-            }
+            project.architectureId =
+                architecture._id as mongoose.Types.ObjectId;
+            await project.save();
 
             return res.status(201).json({
                 success: true,
@@ -168,6 +173,22 @@ class ArchitectureController {
                 "createArchitectureWithAI:",
                 error
             );
+
+            // Two generate requests can pass the initial existence check at
+            // the same time. Return the document created by the winner instead
+            // of surfacing MongoDB's duplicate-key error as an intermittent 500.
+            if (error?.code === 11000 && req.body.projectId) {
+                const architecture = await Architecture.findOne({
+                    projectId: req.body.projectId,
+                });
+                if (architecture) {
+                    return res.status(200).json({
+                        success: true,
+                        message: "Architecture already generated",
+                        architecture,
+                    });
+                }
+            }
 
             return res.status(500).json({
                 success: false,
