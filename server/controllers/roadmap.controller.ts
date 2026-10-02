@@ -5,7 +5,51 @@ import { openRouterService } from "../services/openRouter.service";
 import { Project } from "../models/project.model";
 
 export class RoadmapController {
-  // CREATE ROADMAP (Generates roadmap via OpenRouter AI based on project & automatically computes statistics)
+  private pendingGenerations = new Map<string, Promise<any>>();
+
+  // Internal helper to retrieve or auto-generate a roadmap without duplicate concurrent runs
+  private getOrGenerateRoadmapForProject = async (projectId: string) => {
+    let roadmap = await roadmapService.getRoadmapByProjectId(projectId);
+    if (roadmap) return roadmap;
+
+    if (this.pendingGenerations.has(projectId)) {
+      return await this.pendingGenerations.get(projectId);
+    }
+
+    const generationPromise = (async () => {
+      try {
+        let existing = await roadmapService.getRoadmapByProjectId(projectId);
+        if (existing) return existing;
+
+        const project = await Project.findById(projectId).populate("techStackId");
+        if (!project) return null;
+
+        console.log(`No roadmap found for project ID ${projectId}. Auto-generating AI roadmap...`);
+        const phases = await openRouterService.generateRoadMap({
+          name: project.name,
+          description: project.description,
+          type: project.type,
+          experienceLevel: project.experienceLevel,
+          techStack: project.techStackId,
+        });
+
+        return await roadmapService.createRoadmap({
+          projectId,
+          phases,
+        });
+      } catch (err) {
+        console.error("Auto-generation error:", err);
+        return null;
+      } finally {
+        this.pendingGenerations.delete(projectId);
+      }
+    })();
+
+    this.pendingGenerations.set(projectId, generationPromise);
+    return await generationPromise;
+  };
+
+  // CREATE ROADMAP (Generates roadmap via AI based on project & automatically computes statistics)
   public createRoadmap = async (req: Request, res: Response) => {
     try {
       const { projectId } = req.body;
@@ -24,15 +68,6 @@ export class RoadmapController {
         });
       }
 
-      const project = await Project.findById(projectId).populate("techStackId");
-
-      if (!project) {
-        return res.status(404).json({
-          success: false,
-          message: "Project not found",
-        });
-      }
-
       const existingRoadmap = await roadmapService.getRoadmapByProjectId(projectId);
       if (existingRoadmap) {
         return res.status(200).json({
@@ -42,20 +77,14 @@ export class RoadmapController {
         });
       }
 
-      // Generate roadmap phases using OpenRouter AI
-      const phases = await openRouterService.generateRoadMap({
-        name: project.name,
-        description: project.description,
-        type: project.type,
-        experienceLevel: project.experienceLevel,
-        techStack: project.techStackId,
-      });
+      const roadmap = await this.getOrGenerateRoadmapForProject(projectId);
 
-      // Create roadmap document (roadmapService automatically computes statistics based on phases)
-      const roadmap = await roadmapService.createRoadmap({
-        projectId,
-        phases,
-      });
+      if (!roadmap) {
+        return res.status(404).json({
+          success: false,
+          message: "Project not found or failed to create roadmap",
+        });
+      }
 
       return res.status(201).json({
         success: true,
@@ -93,7 +122,7 @@ export class RoadmapController {
         });
       }
 
-      // Generate AI phases using OpenRouter Service
+      // Generate AI phases using multi-provider OpenRouter/Gemini/Groq Service
       const phases = await openRouterService.generateRoadMap({
         name: project.name,
         description: project.description,
@@ -144,22 +173,7 @@ export class RoadmapController {
       let roadmap = await roadmapService.getRoadmapById(id);
 
       if (!roadmap && mongoose.Types.ObjectId.isValid(id)) {
-        const project = await Project.findById(id).populate("techStackId");
-        if (project) {
-          console.log(`No roadmap found for project ID ${id}. Auto-generating AI roadmap...`);
-          const phases = await openRouterService.generateRoadMap({
-            name: project.name,
-            description: project.description,
-            type: project.type,
-            experienceLevel: project.experienceLevel,
-            techStack: project.techStackId,
-          });
-
-          roadmap = await roadmapService.createRoadmap({
-            projectId: id,
-            phases,
-          });
-        }
+        roadmap = await this.getOrGenerateRoadmapForProject(id);
       }
 
       if (!roadmap) {
@@ -195,26 +209,7 @@ export class RoadmapController {
         });
       }
 
-      let roadmap = await roadmapService.getRoadmapByProjectId(projectId);
-
-      if (!roadmap) {
-        const project = await Project.findById(projectId).populate("techStackId");
-        if (project) {
-          console.log(`No roadmap found for project ${projectId}. Auto-generating AI roadmap...`);
-          const phases = await openRouterService.generateRoadMap({
-            name: project.name,
-            description: project.description,
-            type: project.type,
-            experienceLevel: project.experienceLevel,
-            techStack: project.techStackId,
-          });
-
-          roadmap = await roadmapService.createRoadmap({
-            projectId,
-            phases,
-          });
-        }
-      }
+      const roadmap = await this.getOrGenerateRoadmapForProject(projectId);
 
       if (!roadmap) {
         return res.status(404).json({

@@ -92,4 +92,6 @@ const roadmapSchema = new Schema<IRoadmap>(
   { timestamps: true },
 );
 
+roadmapSchema.index({ projectId: 1 }, { unique: true });
+
 export const Roadmap = mongoose.model<IRoadmap>("Roadmap", roadmapSchema);

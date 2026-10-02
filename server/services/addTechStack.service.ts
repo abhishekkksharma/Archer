@@ -1,5 +1,8 @@
 import { TechStack, ITechStack } from "../models/techStack.model";
 import { Project } from "../models/project.model";
+import { geminiService } from "./gemini.service";
+import { groqService } from "./groq.service";
+import { openRouterService } from "./openRouter.service";
 
 export type TechCategory =
   | "frontend"
@@ -363,8 +366,118 @@ class TechServices {
     return techStackDoc;
   }
 
-  public async a(){
-    
+  public async createTechStackUsingAi(projectId: string): Promise<ITechStack> {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    const systemPrompt = [
+      "You are a senior software architect who recommends practical technology stacks.",
+      "Respond with valid JSON only. The root object must contain frontend, backend, database, authentication, and otherServices arrays.",
+      "Each item must contain name, description, reason, and alternatives (an array of strings).",
+      "Recommend only technologies justified by the project. Use 1-4 items in each applicable category.",
+    ].join(" ");
+    const userPrompt = [
+      "Recommend a technology stack for this project:",
+      "Name: " + project.name,
+      "Description: " + project.description,
+      "Type: " + project.type,
+      "Experience level: " + project.experienceLevel,
+    ].join("\n");
+    const maxTokens = Number(process.env.OPENROUTER_MAX_TOKENS) || 2500;
+    const failures: string[] = [];
+    const providers = [
+      { name: "Gemini", generate: () => geminiService.generateJson(systemPrompt, userPrompt, maxTokens) },
+      { name: "Groq", generate: () => groqService.generateJson(systemPrompt, userPrompt, maxTokens) },
+      { name: "OpenRouter", generate: () => openRouterService.generateJson(systemPrompt, userPrompt, maxTokens) },
+    ];
+
+    for (const provider of providers) {
+      try {
+        const generated = this.parseAiTechStack(await provider.generate());
+        const techStack = await TechStack.findOneAndUpdate(
+          { projectId },
+          { $set: { projectId, ...generated } },
+          { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true },
+        );
+        if (!techStack) throw new Error("Failed to save generated technology stack");
+        await Project.findByIdAndUpdate(projectId, { techStackId: techStack._id });
+        console.log("Tech stack generated with " + provider.name);
+        return techStack;
+      } catch (error: any) {
+        const message = error?.message || "Unknown provider error";
+        failures.push(provider.name + ": " + message);
+        console.warn("Tech stack generation failed with " + provider.name + ": " + message);
+      }
+    }
+
+    throw new Error("All tech stack providers failed. " + failures.join(" | "));
+  }
+
+  private parseAiTechStack(content: string): Record<TechCategory, ITechPreset[]> {
+    const parseCandidate = (candidate: string): any => {
+      const parsed = JSON.parse(candidate);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed;
+      throw new Error("AI response must be a JSON object");
+    };
+    const cleaned = content
+      .replace(/<think>[\s\S]*?<\/think>/gi, "")
+      .replace(new RegExp("\\x60\\x60\\x60(?:json)?", "gi"), "")
+      .trim();
+    let parsed: any;
+    try {
+      parsed = parseCandidate(cleaned);
+    } catch {
+      for (let start = 0; start < cleaned.length; start++) {
+        if (cleaned[start] !== "{") continue;
+        let depth = 0;
+        let inString = false;
+        let escaped = false;
+        for (let end = start; end < cleaned.length; end++) {
+          const char = cleaned[end];
+          if (escaped) { escaped = false; continue; }
+          if (char === "\\") { escaped = true; continue; }
+          if (char === '"') { inString = !inString; continue; }
+          if (inString) continue;
+          if (char === "{") depth++;
+          if (char === "}") depth--;
+          if (depth === 0) {
+            try {
+              parsed = parseCandidate(cleaned.slice(start, end + 1));
+              break;
+            } catch { break; }
+          }
+        }
+        if (parsed) break;
+      }
+    }
+    if (!parsed) throw new Error("Provider response did not contain valid tech stack JSON");
+
+    const categories: TechCategory[] = ["frontend", "backend", "database", "authentication", "otherServices"];
+    const normalize = (items: unknown): ITechPreset[] => Array.isArray(items)
+      ? items
+          .filter((item: any) => item && (item.name || typeof item === "string"))
+          .slice(0, 4)
+          .map((item: any) => {
+            const name = String(typeof item === "string" ? item : item.name).trim();
+            return {
+              name,
+              description: String(item.description || name + " technology component."),
+              reason: String(item.reason || "Recommended for this project."),
+              alternatives: Array.isArray(item.alternatives) ? item.alternatives.map(String) : [],
+            };
+          })
+          .filter((item) => Boolean(item.name))
+      : [];
+    const stack = categories.reduce((result, category) => {
+      result[category] = normalize(parsed[category]);
+      return result;
+    }, {} as Record<TechCategory, ITechPreset[]>);
+    if (categories.every((category) => stack[category].length === 0)) {
+      throw new Error("AI response did not include any technology recommendations");
+    }
+    return stack;
   }
 }
 

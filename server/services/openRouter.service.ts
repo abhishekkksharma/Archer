@@ -2,6 +2,8 @@ import "dotenv/config";
 import { IRoadmapPhase } from "../models/roadmap.model";
 import { IArchitectureNode, IArchitectureEdge } from "../models/architecture.model";
 import { OPENROUTER_PROMPTS } from "../prompts/openRouter.prompts";
+import { geminiService } from "./gemini.service";
+import { groqService } from "./groq.service";
 
 export interface GenerateRoadmapInput {
   name: string;
@@ -592,15 +594,35 @@ class OpenRouterService {
     info: GenerateRoadmapInput | string,
   ): Promise<IRoadmapPhase[]> {
     try {
+      const formatTechStackContext = (techStack: any): string => {
+        if (!techStack) return "Not specified";
+        if (typeof techStack === "string") return techStack;
+        if (typeof techStack === "object") {
+          const category = (items: any) =>
+            Array.isArray(items)
+              ? items.map((i: any) => i?.name || String(i)).join(", ")
+              : "";
+          const details = [
+            category(techStack.frontend) && `Frontend/Mobile UI: ${category(techStack.frontend)}`,
+            category(techStack.backend) && `Backend/APIs: ${category(techStack.backend)}`,
+            category(techStack.database) && `Database: ${category(techStack.database)}`,
+            category(techStack.authentication) && `Authentication: ${category(techStack.authentication)}`,
+            category(techStack.otherServices) && `Other Services: ${category(techStack.otherServices)}`,
+          ].filter(Boolean).join("\n");
+          return details || JSON.stringify(techStack);
+        }
+        return String(techStack);
+      };
+
       const projectDetails =
         typeof info === "string"
           ? info
           : `
-Project Name: ${info.name}
-Description: ${info.description}
-Type: ${info.type || "Web Application"}
+Project Name: ${info.name || "Software Project"}
+Description: ${info.description || "Project specification"}
+Type: ${info.type || "Application"}
 Target Experience Level: ${info.experienceLevel || "Beginner"}
-Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not specified"}
+Tech Stack Context: ${formatTechStackContext(info.techStack)}
 `;
 
       const systemPrompt = OPENROUTER_PROMPTS.generateRoadmapSystemPrompt;
@@ -608,7 +630,34 @@ Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not spe
         OPENROUTER_PROMPTS.generateRoadmapUserPrompt(projectDetails);
 
       const maxTokens = Number(process.env.OPENROUTER_MAX_TOKENS) || 3000;
-      const content = await this.callAiModel(systemPrompt, userPrompt, maxTokens);
+
+      const providers = [
+        { name: "Gemini", generate: () => geminiService.generateJson(systemPrompt, userPrompt, maxTokens) },
+        { name: "Groq", generate: () => groqService.generateJson(systemPrompt, userPrompt, maxTokens) },
+        { name: "OpenRouter", generate: () => this.callAiModel(systemPrompt, userPrompt, maxTokens) },
+      ];
+
+      let content = "";
+      const failures: string[] = [];
+
+      for (const provider of providers) {
+        try {
+          content = await provider.generate();
+          if (content && content.trim().length > 0) {
+            console.log(`Roadmap generated with ${provider.name}`);
+            break;
+          }
+        } catch (error: any) {
+          const message = error?.message || "Unknown provider error";
+          failures.push(`${provider.name}: ${message}`);
+          console.warn(`Roadmap generation failed with ${provider.name}: ${message}`);
+        }
+      }
+
+      if (!content || content.trim().length === 0) {
+        console.warn(`All roadmap AI providers failed. (${failures.join(" | ")}). Returning default fallback roadmap.`);
+        return this.getDefaultRoadmapPhases(info);
+      }
 
       const parsed = this.parseOrRepairJson(content);
       const phases = Array.isArray(parsed.phases)
@@ -625,45 +674,49 @@ Tech Stack Context: ${info.techStack ? JSON.stringify(info.techStack) : "Not spe
       const sanitizedPhases = phases
         .filter((phase: any) => phase && typeof phase === "object")
         .map((phase: any, pIndex: number) => {
-        const phaseTitle = String(phase.title || `Phase ${pIndex + 1}`);
-        const phaseDesc = String(phase.description || "").trim() || `${phaseTitle} objectives and setup.`;
+          const phaseTitle = String(phase.title || `Phase ${pIndex + 1}`).trim();
+          const phaseDesc = String(phase.description || "").trim() || `${phaseTitle} objectives and setup.`;
+          const rawDifficulty = String(phase.difficulty || "").toLowerCase();
+          const difficulty = ["easy", "medium", "hard"].includes(rawDifficulty)
+            ? rawDifficulty
+            : "medium";
 
-        return {
-          phaseNumber: Number(phase.phaseNumber) || pIndex + 1,
-          title: phaseTitle,
-          description: phaseDesc,
-          difficulty: ["easy", "medium", "hard"].includes(phase.difficulty)
-            ? phase.difficulty
-            : "medium",
-          order: Number(phase.order) || pIndex + 1,
-          tasks: Array.isArray(phase.tasks)
-            ? phase.tasks.map((task: any, tIndex: number) => {
-                const taskTitle = String(task.title || `Task ${tIndex + 1}`);
-                const taskDesc = String(task.description || "").trim() || `Implement and execute ${taskTitle}.`;
+          const rawTasks = Array.isArray(phase.tasks) ? phase.tasks : [];
+          const tasks = rawTasks
+            .filter((task: any) => task && typeof task === "object")
+            .map((task: any, tIndex: number) => {
+              const taskTitle = String(task.title || `Task ${tIndex + 1}`).trim();
+              const taskDesc = String(task.description || "").trim() || `Implement and execute ${taskTitle}.`;
+              const rawPriority = String(task.priority || "").toLowerCase();
+              const priority = ["low", "medium", "high"].includes(rawPriority)
+                ? rawPriority
+                : "medium";
+              const rawStatus = String(task.status || "").toLowerCase();
+              const status = ["not_started", "in_progress", "completed", "blocked"].includes(rawStatus)
+                ? rawStatus
+                : "not_started";
 
-                return {
-                  title: taskTitle,
-                  description: taskDesc,
-                  order: Number(task.order) || tIndex + 1,
-                  estimatedHours: Number(task.estimatedHours) || 2,
-                  priority: ["low", "medium", "high"].includes(task.priority)
-                    ? task.priority
-                    : "medium",
-                  status: [
-                    "not_started",
-                    "in_progress",
-                    "completed",
-                    "blocked",
-                  ].includes(task.status)
-                    ? task.status
-                    : "not_started",
-                  dependencies: Array.isArray(task.dependencies)
-                    ? task.dependencies.map(String)
-                    : [],
-                };
-              })
-            : [],
-        };
+              return {
+                title: taskTitle,
+                description: taskDesc,
+                order: Number(task.order) || tIndex + 1,
+                estimatedHours: Math.max(1, Number(task.estimatedHours) || 2),
+                priority,
+                status,
+                dependencies: Array.isArray(task.dependencies)
+                  ? task.dependencies.map(String).filter(Boolean)
+                  : [],
+              };
+            });
+
+          return {
+            phaseNumber: Number(phase.phaseNumber) || pIndex + 1,
+            title: phaseTitle,
+            description: phaseDesc,
+            difficulty,
+            order: Number(phase.order) || pIndex + 1,
+            tasks,
+          };
         });
 
       // A roadmap containing phase headers but no tasks is not actionable.

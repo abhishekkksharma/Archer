@@ -13,6 +13,7 @@ router.get("/githubstats", projectController.getProjectGithubStats);
 router.get("/:id/githubstats", projectController.getProjectGithubStats);
 router.get("/:id", projectController.getProject);
 router.post("/:id/tech-stack", projectController.addTechStack);
+router.post("/:id/tech-stack/ai", projectController.createTechStackUsingAi);
 router.delete("/:id/tech-stack", projectController.deleteTechStack);
 router.put("/:id", projectController.updateProject);
 router.delete("/:id", projectController.deleteProject);

@@ -26,6 +26,7 @@ import VueJsIcon from "./Vue.js.svg";
 import RenderIcon from "./render.svg"
 import KafkaIcon from "./Apache Kafka.svg"
 import SupabaseIcon from "./supabase.svg"
+import GoogleIcon from "./Google.svg"
 
 // Export individual icon imports
 export {
@@ -56,11 +57,14 @@ export {
   VueJsIcon,
   RenderIcon,
   KafkaIcon,
-  SupabaseIcon
+  SupabaseIcon,
+  GoogleIcon
 };
 
 // Map tech names and aliases to their SVG icon assets
 export const techIconMap: Record<string, any> = {
+  "Google":GoogleIcon,
+  
   // Frontend
   "Next.js": NextJsIcon,
   "NextJS": NextJsIcon,
@@ -121,7 +125,7 @@ export const techIconMap: Record<string, any> = {
   "GitHub Actions": GitHubActionsIcon,
   "Render":RenderIcon,
   "Apache Kafka":KafkaIcon,
-  "Kafka":KafkaIcon
+  "Kafka":KafkaIcon,
 };
 
 // Categorized structure mapping technology names to icon assets
@@ -162,6 +166,7 @@ export const techIconsByCategory = {
     { name: "GitHub Actions", icon: GitHubActionsIcon },
     { name: "Apache Kafka", icon: KafkaIcon },
     { name: "Kafka", icon: KafkaIcon },
+    { name: "Google", icon: GoogleIcon },
   ],
 };
 

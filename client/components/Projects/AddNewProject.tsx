@@ -340,7 +340,7 @@ function AddNewProject() {
         experienceLevel,
         status,
         techStackMode,
-        techStack: formattedTechStack,
+        ...(techStackMode === "manual" ? { techStack: formattedTechStack } : {}),
       };
 
       const response = await fetch(`${backendUrl}/project`, {
@@ -362,6 +362,26 @@ function AddNewProject() {
         const newId = data.project?._id || data.project?.id;
 
         if (newId) {
+          if (techStackMode === "ai") {
+            const techStackResponse = await fetch(
+              backendUrl + "/project/" + newId + "/tech-stack/ai",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  ...(token ? { Authorization: "Bearer " + token } : {}),
+                },
+              },
+            );
+            const techStackData = await techStackResponse.json();
+            if (!techStackResponse.ok || !techStackData.success) {
+              showPopup(
+                techStackData.message ||
+                  "Project was created, but AI tech stack generation failed.",
+                "error",
+              );
+            }
+          }
           showPopup("Project created successfully!", "success");
           router.push(`/project/${newId}`);
         } else {

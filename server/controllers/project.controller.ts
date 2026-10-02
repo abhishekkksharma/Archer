@@ -468,6 +468,42 @@ class ProjectsController {
   };
 
   // =========================
+  // GENERATE TECH STACK WITH AI
+  // POST /projects/:id/tech-stack/ai
+  // =========================
+  public createTechStackUsingAi = async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      const { id } = req.params;
+
+      if (!userId) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
+      }
+      if (!id || typeof id !== "string" || !mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ success: false, message: "Invalid project ID" });
+      }
+
+      const project = await Project.findOne({ _id: id, userId });
+      if (!project) {
+        return res.status(404).json({ success: false, message: "Project not found or unauthorized" });
+      }
+
+      const techStack = await techServices.createTechStackUsingAi(id);
+      return res.status(200).json({
+        success: true,
+        message: "AI technology stack generated successfully",
+        techStack,
+      });
+    } catch (error: any) {
+      console.error("Generate AI tech stack error:", error);
+      return res.status(502).json({
+        success: false,
+        message: error?.message || "Failed to generate AI technology stack",
+      });
+    }
+  };
+
+  // =========================
   // DELETE TECH STACK ITEM
   // DELETE /projects/:id/tech-stack
   // =========================

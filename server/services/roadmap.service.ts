@@ -73,6 +73,26 @@ export class RoadmapService {
       ...(data.statistics || {}),
     };
 
+    // Check if roadmap already exists for this project to prevent duplicates
+    const existing = await Roadmap.findOne({
+      projectId: new mongoose.Types.ObjectId(data.projectId.toString()),
+    });
+
+    if (existing) {
+      if (phases.length > 0) {
+        existing.phases = phases;
+      }
+      existing.statistics = statistics;
+      await existing.save();
+
+      await Project.findByIdAndUpdate(data.projectId, {
+        roadmapId: existing._id,
+        progress: statistics.progress,
+      });
+
+      return existing;
+    }
+
     const roadmap = await Roadmap.create({
       projectId: data.projectId,
       phases,
