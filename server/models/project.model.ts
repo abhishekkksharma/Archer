@@ -20,6 +20,17 @@ export interface IProject extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+export const PROJECT_TYPES = [
+  "Web Application",
+  "Full Stack Application",
+  "Mobile Application",
+  "Desktop Application",
+  "API / Backend Service",
+  "AI / ML Application",
+  "CLI Tool",
+  "Chrome Extension",
+  "Game Development",
+];
 
 const projectSchema = new Schema<IProject>(
   {
