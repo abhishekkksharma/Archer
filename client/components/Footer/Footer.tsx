@@ -60,163 +60,195 @@ function Footer() {
     <footer className="w-full py-10 sm:py-12">
       {/* Contact Card */}
       <div
-        id="contact"
+  id="contact"
+  className="
+    relative
+    mx-auto
+    w-[92%]
+    max-w-3xl
+    overflow-visible
+    rounded-2xl
+    border
+    border-blue-100
+    bg-white
+    px-5
+    py-5
+    shadow-sm
+    shadow-zinc-200/60
+    dark:border-zinc-800
+    dark:bg-zinc-950
+    dark:shadow-none
+    sm:px-7
+    lg:px-6
+  "
+>
+  <div className="flex flex-col items-center justify-between gap-4 lg:flex-row">
+
+    {/* Image */}
+    <div className="relative flex w-full justify-center lg:w-[35%] lg:justify-start">
+      <Image
+        src={MailImg}
+        alt="Contact us"
         className="
-          relative
-          mx-auto
-          w-[92%]
-          max-w-5xl
-          overflow-visible
-          rounded-3xl
-          bg-[#010736]
-          dark:bg-zinc-900
-          px-6
-          sm:px-10
-          lg:px-14
-          py-6
-          shadow-lg
-          shadow-zinc-600/20
+          -mt-22
+          w-50
+          object-contain
+          transition-transform
+          duration-500
+          hover:-translate-y-1
+          sm:w-36
+          lg:-mt-28
+          lg:w-fit
+        "
+      />
+    </div>
+
+    {/* Content */}
+    <div className="w-full lg:w-[60%]">
+      <p
+        className="
+          mb-1
+          text-xs
+          font-medium
+          text-blue-600
+          dark:text-blue-400
         "
       >
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-          {/* Image */}
-          <div className="relative flex w-full lg:w-[38%] justify-center lg:justify-start">
-            <Image
-              src={MailImg}
-              alt="Contact us"
+        Get in touch
+      </p>
+
+      <h2
+        className="
+          max-w-lg
+          text-xl
+          font-semibold
+          leading-tight
+          text-zinc-900
+          sm:text-2xl
+          dark:text-white
+        "
+      >
+        Have something to share?
+        <br />
+        We'd love to hear from you.
+      </h2>
+
+      <p
+        className="
+          mt-2
+          max-w-md
+          text-xs
+          leading-5
+          text-zinc-600
+          sm:text-sm
+          dark:text-zinc-400
+        "
+      >
+        Share your email with us and we'll try to connect you soon.
+      </p>
+
+      {/* Email Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="
+          group
+          mt-4
+          flex
+          w-full
+          max-w-sm
+          items-center
+          gap-1
+          rounded-full
+          border
+          border-zinc-200
+          bg-zinc-50
+          p-1
+          transition-all
+          duration-300
+          focus-within:border-blue-300
+          focus-within:bg-white
+          dark:border-zinc-800
+          dark:bg-zinc-900
+          dark:focus-within:border-zinc-700
+          dark:focus-within:bg-zinc-900
+        "
+      >
+        <div className="flex min-w-0 flex-1 items-center gap-2 px-2.5">
+          <Mail
+            size={15}
+            className="shrink-0 text-zinc-500 dark:text-zinc-400"
+          />
+
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setSubmitted(false);
+              setError("");
+            }}
+            placeholder="Enter your email"
+            required
+            className="
+              min-w-0
+              flex-1
+              bg-transparent
+              py-1.5
+              text-xs
+              text-zinc-900
+              outline-none
+              placeholder:text-zinc-400
+              dark:text-white
+              dark:placeholder:text-zinc-500
+            "
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="
+            group/button
+            flex
+            shrink-0
+            items-center
+            gap-1.5
+            rounded-full
+            bg-zinc-900
+            px-3.5
+            py-1.5
+            text-xs
+            font-medium
+            text-white
+            transition-all
+            duration-300
+            hover:bg-blue-600
+            active:scale-95
+            disabled:cursor-not-allowed
+            disabled:opacity-60
+            dark:bg-white
+            dark:text-zinc-900
+            dark:hover:bg-blue-50
+          "
+        >
+          <span>{loading ? "Sending..." : "Submit"}</span>
+
+          {!loading && (
+            <ArrowUpRight
+              size={14}
               className="
-                w-44
-                lg:-mt-38
-                -mt-25
-                sm:w-52
-                lg:w-80
-                object-contain
                 transition-transform
-                duration-500
-                hover:-translate-y-2
+                duration-300
+                group-hover/button:-translate-y-0.5
+                group-hover/button:translate-x-0.5
               "
             />
-          </div>
-
-          {/* Content */}
-          <div className="w-full lg:w-[58%] text-white">
-            <p className="mb-2 text-xs sm:text-sm font-medium text-blue-200">
-              Get in touch
-            </p>
-
-            <h2
-              className="
-                max-w-xl
-                text-2xl
-                sm:text-3xl
-                lg:text-[32px]
-                font-semibold
-                leading-tight
-              "
-            >
-              Have something to share?
-              <br />
-              We'd love to hear from you.
-            </h2>
-
-            <p className="mt-3 max-w-lg text-sm leading-6 text-zinc-100">
-              Share your email with us and we'll try to connect you soon.
-            </p>
-
-            {/* Email Form */}
-            <form
-              onSubmit={handleSubmit}
-              className="
-                group
-                mt-5
-                flex
-                w-full
-                max-w-md
-                items-center
-                gap-1
-                rounded-full
-                border
-                border-white/20
-                bg-white/10
-                p-1
-                backdrop-blur-xl
-                transition-all
-                duration-300
-                focus-within:border-white/40
-                focus-within:bg-white/15
-                focus-within:shadow-lg
-                focus-within:shadow-black/10
-              "
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-2 px-3">
-                <Mail size={16} className="shrink-0 text-zinc-200" />
-
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setSubmitted(false);
-                    setError("");
-                  }}
-                  placeholder="Enter your email"
-                  required
-                  className="
-                    min-w-0
-                    flex-1
-                    bg-transparent
-                    py-2
-                    text-sm
-                    text-white
-                    outline-none
-                    placeholder:text-zinc-100/80
-                  "
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="
-                  group/button
-                  flex
-                  shrink-0
-                  items-center
-                  gap-2
-                  rounded-full
-                  bg-white
-                  px-4
-                  py-2
-                  text-sm
-                  font-medium
-                  text-zinc-900
-                  transition-all
-                  duration-300
-                  hover:bg-blue-50
-                  active:scale-95
-                  disabled:cursor-not-allowed
-                  disabled:opacity-60
-                "
-              >
-                <span>{loading ? "Sending..." : "Submit"}</span>
-
-                {!loading && (
-                  <ArrowUpRight
-                    size={15}
-                    className="
-                      transition-transform
-                      duration-300
-                      group-hover/button:-translate-y-0.5
-                      group-hover/button:translate-x-0.5
-                    "
-                  />
-                )}
-              </button>
-            </form>
-
-          </div>
-        </div>
-      </div>
+          )}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
 
       {/* Footer Content */}
       <div className="mt-10 w-full px-6 sm:px-10 lg:px-16">

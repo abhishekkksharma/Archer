@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-
 import Logo from "@/public/logoSVG.png";
 import GithubSVG from "@/assets/github.svg";
 
@@ -24,6 +23,7 @@ import {
 } from "lucide-react";
 
 import ProgressBar from "./ProgressBar";
+import UserAvatarInfo from "./UserAvatarInfo";
 
 const GithubIcon = ({
   size = 16,
@@ -510,6 +510,9 @@ function Sidebar({
             })}
           </div>
         </nav>
+
+        {/* user info */}
+        <UserAvatarInfo/>
       </aside>
     </>
   );

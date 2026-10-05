@@ -29,7 +29,7 @@ function Navbar({ theme }: NavbarProps = {}) {
     },
     {
       name: "Docs",
-      link: "#",
+      link: "/docs",
     },
   ];
 
