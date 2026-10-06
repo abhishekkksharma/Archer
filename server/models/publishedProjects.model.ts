@@ -49,7 +49,9 @@ const publishedProjectSchema = new Schema<IPublishedProject>({
         type: String,
         default: "",
     },
-});
+    }, 
+    { timestamps: true },
+);
 
 export const PublishedProject = mongoose.model<IPublishedProject>(
     "PublishedProject",

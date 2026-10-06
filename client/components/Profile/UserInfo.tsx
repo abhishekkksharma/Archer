@@ -83,8 +83,7 @@ function UserInfo() {
             />
 
             {/* Stats */}
-            <div className="mt-8 grid grid-cols-2 border-y border-zinc-200 dark:border-zinc-800 lg:mt-10 lg:grid-cols-4">
-                {/* Projects */}
+            {/* <div className="mt-8 grid grid-cols-2 border-y border-zinc-200 dark:border-zinc-800 lg:mt-10 lg:grid-cols-4">
                 <div className="border-b border-zinc-200 px-5 py-5 dark:border-zinc-800 lg:border-b-0 lg:border-r">
                     <p className="text-sm text-zinc-500 dark:text-zinc-400">
                         Projects
@@ -95,7 +94,6 @@ function UserInfo() {
                     </p>
                 </div>
 
-                {/* Account Created */}
                 <div className="border-b border-zinc-200 px-5 py-5 dark:border-zinc-800 lg:border-b-0 lg:border-r">
                     <p className="text-sm text-zinc-500 dark:text-zinc-400">
                         Account created
@@ -115,7 +113,6 @@ function UserInfo() {
                     </p>
                 </div>
 
-                {/* Last Login */}
                 <div className="border-b border-zinc-200 px-5 py-5 dark:border-zinc-800 lg:border-b-0 lg:border-r">
                     <p className="text-sm text-zinc-500 dark:text-zinc-400">
                         Last login
@@ -135,7 +132,6 @@ function UserInfo() {
                     </p>
                 </div>
 
-                {/* Google Verification */}
                 <div className="px-5 py-5">
                     <p className="text-sm text-zinc-500 dark:text-zinc-400">
                         Google verified
@@ -157,7 +153,7 @@ function UserInfo() {
                         </p>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* Projects */}
             <div className="mt-10 w-full">

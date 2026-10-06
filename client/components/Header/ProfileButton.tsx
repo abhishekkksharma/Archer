@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, LayoutDashboard, LogOut, UserPen } from "lucide-react";
+import { StaticImageData } from "next/image";
 import { useUser } from "@/context/UserContext";
 
 import {
@@ -14,7 +15,7 @@ import {
   Avatar5,
 } from "@/assets/Icons/avatars";
 
-const avatarMap = {
+export const avatarMap : Record<string, StaticImageData> ={
   avatar1: Avatar1,
   avatar2: Avatar2,
   avatar3: Avatar3,

@@ -65,18 +65,6 @@ export default function ProjectDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
-
-    if (user?.projects && Array.isArray(user.projects)) {
-      const found = user.projects.find(
-        (p: any) => p._id === id || p.id === id
-      );
-
-      if (found) {
-        setProject(found);
-      }
-    }
-
     const fetchProject = async () => {
       try {
         const token =
