@@ -216,7 +216,7 @@ class ProjectsController {
 
       const project = await Project.findOne({
         _id: id,
-        // userId,
+        userId,
       })
         .populate("analysisId")
         .populate("techStackId")

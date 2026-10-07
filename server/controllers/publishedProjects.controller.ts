@@ -126,7 +126,7 @@ class PublishedProjectController {
 
             const project = await PublishedProject.findOne({
                 projectId: projectId,
-            }).populate("publishedBy", "name avatar");
+            }).populate("publishedBy", "name avatar").populate("projectId");
 
             if (!project) {
                 return res.status(404).json({
