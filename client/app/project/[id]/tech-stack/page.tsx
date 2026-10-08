@@ -7,18 +7,11 @@ import { Code2, Layers } from "lucide-react";
 import TechStack from "@/components/TechStack/techStack";
 import AddNewTechButton from "@/components/TechStack/AddNewTechButton";
 import NewTechInput from "@/components/TechStack/NewTechInput";
+import { getCookie } from "@/utils/cookie";
 
 interface ITechItem {
   name: string;
   description: string;
-}
-
-function getCookie(name: string): string | null {
-  if (typeof window === "undefined") return null;
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
-  return null;
 }
 
 // Extract tech items from techStackId, architectureId.nodes, or direct project properties

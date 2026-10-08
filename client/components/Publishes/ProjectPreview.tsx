@@ -1,20 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Globe, ExternalLink } from "lucide-react";
-import { getToken } from "@/utils/cookie";
 
-interface IProjectPreview {
-  id: string;
-}
-
-interface IPublishedBy {
+export interface IPublishedBy {
   _id: string;
   name: string;
   avatar: string;
 }
 
-interface IProjectDetails {
+export interface IProjectDetails {
   _id: string;
   userId: string;
   name: string;
@@ -27,12 +22,12 @@ interface IProjectDetails {
   githubLink: string;
   createdAt: string;
   updatedAt: string;
-  techStackId: string;
-  roadmapId: string;
-  architectureId: string;
+  techStackId?: any;
+  roadmapId?: any;
+  architectureId?: any;
 }
 
-interface IProject {
+export interface IProject {
   _id: string;
   projectId: IProjectDetails;
   publishedBy: IPublishedBy;
@@ -46,46 +41,12 @@ interface IProject {
   __v: number;
 }
 
-function ProjectPreview({ id }: IProjectPreview) {
-  const [project, setProject] = useState<IProject | null>(null);
-  const [loading, setLoading] = useState(true);
+interface IProjectPreview {
+  project: IProject | null;
+  loading?: boolean;
+}
 
-  const fetchProject = async () => {
-    try {
-      const token = getToken();
-
-      const backendUrl =
-        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/api";
-
-      const res = await fetch(`${backendUrl}/published/project/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch project");
-      }
-
-      const data = await res.json();
-
-      if (data.success && data.project) {
-        setProject(data.project);
-      }
-    } catch (err) {
-      console.error("Failed to fetch project:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!id) return;
-
-    fetchProject();
-  }, [id]);
+function ProjectPreview({ project, loading }: IProjectPreview) {
 
   if (loading) {
     return (

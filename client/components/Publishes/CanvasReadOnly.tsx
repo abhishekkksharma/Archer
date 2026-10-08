@@ -95,10 +95,17 @@ const mapBackendEdge = (edge: any): ArchitectureEdgeType => {
 
 type ReadonlyCanvasProps = {
   projectId?: string;
+  architectureData?: any;
+  parentLoading?: boolean;
   className?: string;
 };
 
-export default function CanvasReadOnly({ projectId: propProjectId, className = '' }: ReadonlyCanvasProps) {
+export default function CanvasReadOnly({
+  projectId: propProjectId,
+  architectureData,
+  parentLoading,
+  className = '',
+}: ReadonlyCanvasProps) {
   const params = useParams();
   const rawId = params?.id;
   const routeProjectId = Array.isArray(rawId) ? rawId[0] : rawId;
@@ -113,6 +120,29 @@ export default function CanvasReadOnly({ projectId: propProjectId, className = '
   const [errorText, setErrorText] = useState<string | null>(null);
 
   useEffect(() => {
+    if (architectureData && typeof architectureData === 'object' && Array.isArray(architectureData.nodes)) {
+      const fetchedNodes = architectureData.nodes.map(mapBackendNode);
+      const fetchedEdges = Array.isArray(architectureData.edges)
+        ? architectureData.edges.map(mapBackendEdge)
+        : [];
+
+      setNodes(fetchedNodes);
+      setEdges(fetchedEdges);
+
+      if (architectureData.viewport) {
+        setDefaultViewport(architectureData.viewport);
+      }
+
+      setLoading(false);
+      setErrorText(null);
+      return;
+    }
+
+    if (parentLoading) {
+      setLoading(true);
+      return;
+    }
+
     let isMounted = true;
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000/api';
 
@@ -199,7 +229,7 @@ export default function CanvasReadOnly({ projectId: propProjectId, className = '
     return () => {
       isMounted = false;
     };
-  }, [projectId]);
+  }, [projectId, architectureData, parentLoading]);
 
   if (loading) {
     return (
@@ -240,7 +270,9 @@ export default function CanvasReadOnly({ projectId: propProjectId, className = '
         zoomOnScroll={true}
       >
         <Background gap={16} size={1} />
+        <div className='dark:text-black'>
         <Controls position="bottom-left" showInteractive={false} showFitView={true} />
+        </div>
 
         <Panel position="bottom-right">
           <MiniMapCustom />

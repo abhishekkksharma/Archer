@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import { Response } from "express";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import { PublishedProject } from "../models/publishedProjects.model";
+import "../models/project.model";
+import "../models/techStack.model";
+import "../models/roadmap.model";
+import "../models/architecture.model";
 
 class PublishedProjectController {
     public async addProject(req: AuthRequest, res: Response) {
@@ -126,7 +130,16 @@ class PublishedProjectController {
 
             const project = await PublishedProject.findOne({
                 projectId: projectId,
-            }).populate("publishedBy", "name avatar").populate("projectId");
+            })
+                .populate("publishedBy", "name avatar")
+                .populate({
+                    path: "projectId",
+                    populate: [
+                        { path: "techStackId" },
+                        { path: "roadmapId" },
+                        { path: "architectureId" },
+                    ],
+                });
 
             if (!project) {
                 return res.status(404).json({
