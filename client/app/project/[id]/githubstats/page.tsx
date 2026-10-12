@@ -15,7 +15,7 @@ export default function GithubStatsPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <ProjectGithubStats projectId={id} />
-      <HeatMapp/>
+      <HeatMapp projectId={id} />
     </div>
   );
 }

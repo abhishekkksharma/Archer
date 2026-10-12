@@ -18,6 +18,11 @@ interface GithubStats {
     commits: {
       committer: { login: string; avatar_url: string; html_url: string } | null;
       message: string;
+      date?: string;
+    }[];
+    daily_commits?: {
+      date: string;
+      count: number;
     }[];
     url: string;
   };
