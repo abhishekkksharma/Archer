@@ -3,6 +3,7 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import ProjectGithubStats from "@/components/ProjectGithubStats";
+import HeatMapp from "@/components/GithubStats/HeatMap";
 
 export default function GithubStatsPage() {
   const params = useParams();
@@ -14,6 +15,7 @@ export default function GithubStatsPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <ProjectGithubStats projectId={id} />
+      <HeatMapp/>
     </div>
   );
 }

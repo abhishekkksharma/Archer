@@ -5,7 +5,7 @@ import MappedProjects from './MappedProjects'
 
 function PublishMain() {
   return (
-    <div className='px-[20%] pt-26'>
+    <div className='px-6 lg:px-[20%] pt-26'>
         <Navbar theme='light'/>
         <MappedProjects/>
     </div>

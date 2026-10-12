@@ -46,7 +46,7 @@ export type TechCategory =
   | "database"
   | "otherServices";
 
-const PROJECT_TYPES = [
+export const PROJECT_TYPES = [
   "Web Application",
   "Full Stack Application",
   "Mobile Application",

@@ -12,6 +12,7 @@ import {
   Avatar5,
 } from "@/assets/Icons/avatars";
 import { avatarMap } from "../Header/ProfileButton";
+import ProjectTypeBanner from "./ProjectTypeBanner";
 
 export interface Project {
   _id: string;
@@ -151,6 +152,7 @@ function MappedProjects({ projectType }: MappedProjectsProps) {
                   dark:bg-zinc-900
                 "
               >
+                <ProjectTypeBanner projectType={project.projectType}/>
                 <Link
                     href={`/profile`}
                   className="

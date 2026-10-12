@@ -44,7 +44,7 @@ export default function ProjectGithubStats({ projectId, githubLink }: { projectI
       setError(null);
 
       try {
-        const token = localStorage.getItem("token") || getCookie("token") || getCookie("auth_token") || getCookie("jwt");
+        const token = getCookie("token") 
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/api";
 
         const url = projectId

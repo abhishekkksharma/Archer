@@ -28,6 +28,10 @@ function Navbar({ theme }: NavbarProps = {}) {
       link: "/dashboard",
     },
     {
+      name: "Projects",
+      link: "/publishes",
+    },
+    {
       name: "Docs",
       link: "/docs",
     },
