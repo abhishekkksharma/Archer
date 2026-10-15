@@ -28,7 +28,7 @@ function Navbar({ theme }: NavbarProps = {}) {
       link: "/dashboard",
     },
     {
-      name: "Projects",
+      name: "Publishes",
       link: "/publishes",
     },
     {

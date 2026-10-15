@@ -6,6 +6,7 @@ import "../models/project.model";
 import "../models/techStack.model";
 import "../models/roadmap.model";
 import "../models/architecture.model";
+import { Project } from "../models/project.model";
 
 class PublishedProjectController {
     public async addProject(req: AuthRequest, res: Response) {
@@ -63,6 +64,11 @@ class PublishedProjectController {
                 projectLiveLink: projectLiveLink || "",
                 projectDescription: projectDescription || "",
             });
+            const updateIsPublished = await Project.findOneAndUpdate(
+                { _id: projectId },
+                { $set: { isPublished: true } },
+                { new: true }
+            );
 
             return res.status(201).json({
                 success: true,
@@ -187,8 +193,8 @@ class PublishedProjectController {
                 });
             }
 
-            const project = await PublishedProject.findOne({
-                _id: projectId,
+            const project = await PublishedProject.findOneAndDelete({
+                $or: [{ projectId }, { _id: projectId }],
                 publishedBy: req.user.userId,
             });
 
@@ -200,7 +206,11 @@ class PublishedProjectController {
                 });
             }
 
-            await PublishedProject.findByIdAndDelete(projectId);
+            await Project.findOneAndUpdate(
+                { _id: project.projectId },
+                { $set: { isPublished: false } },
+                { new: true }
+            );
 
             return res.status(200).json({
                 success: true,

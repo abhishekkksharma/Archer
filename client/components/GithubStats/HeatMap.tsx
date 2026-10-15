@@ -340,18 +340,23 @@ export function HeatMap({
                 bg-transparent
                 py-3
 
-                [&_.color-empty]:!fill-zinc-100
-                dark:[&_.color-empty]:!fill-zinc-800
+                [&_.color-empty]:fill-zinc-100!
+                dark:[&_.color-empty]:fill-zinc-900!
 
                 /* Same density colors in BOTH themes */
-                [&_.color-scale-1]:!fill-[#90caf9]
-                [&_.color-scale-2]:!fill-[#42a5f5]
-                [&_.color-scale-3]:!fill-[#1e88e5]
-                [&_.color-scale-4]:!fill-[#0d47a1]
+                 [&_.color-scale-1]:fill-[#90caf9]!
+                 [&_.color-scale-2]:fill-[#42a5f5]!
+                 [&_.color-scale-3]:fill-[#1e88e5]!
+                 [&_.color-scale-4]:fill-[#0d47a1]!
+                       
+                 dark:[&_.color-scale-1]:fill-[#64b5f6]!
+                 dark:[&_.color-scale-2]:fill-[#2196f3]!
+                 dark:[&_.color-scale-3]:fill-[#1976d2]!
+                 dark:[&_.color-scale-4]:fill-[#0d47a1]!
 
                 /* Calendar text */
-                [&_text]:!fill-zinc-400
-                dark:[&_text]:!fill-zinc-500
+                [&_text]:fill-zinc-400!
+                dark:[&_text]:fill-zinc-500!
                 [&_text]:text-[9px]
 
                 /* Smaller rounded tiles */
@@ -359,8 +364,6 @@ export function HeatMap({
                 [&_rect]:[ry:2]
                 [&_rect]:transition-all
                 [&_rect]:duration-150
-                hover:[&_rect]:opacity-75
-
                 ${className}
             `}
     >
@@ -413,15 +416,15 @@ export function HeatMap({
           <span>Less</span>
 
           <div className="flex gap-1 items-center">
-            <div className="w-2.5 h-2.5 rounded-[2px] bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60" />
+            <div className="w-2.5 h-2.5 rounded-xs bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60" />
 
-            <div className="w-2.5 h-2.5 rounded-[2px] bg-[#90caf9]" />
+            <div className="w-2.5 h-2.5 rounded-xs bg-[#90caf9]" />
 
-            <div className="w-2.5 h-2.5 rounded-[2px] bg-[#42a5f5]" />
+            <div className="w-2.5 h-2.5 rounded-xs bg-[#42a5f5]" />
 
-            <div className="w-2.5 h-2.5 rounded-[2px] bg-[#1e88e5]" />
+            <div className="w-2.5 h-2.5 rounded-xs bg-[#1e88e5]" />
 
-            <div className="w-2.5 h-2.5 rounded-[2px] bg-[#0d47a1]" />
+            <div className="w-2.5 h-2.5 rounded-xs bg-[#0d47a1]" />
           </div>
 
           <span>More</span>
@@ -457,7 +460,7 @@ export function HeatMap({
                   return "color-scale-2";
                 }
 
-                if (value.count <= 9) {
+                if (value.count <= 6) {
                   return "color-scale-3";
                 }
 
@@ -531,9 +534,9 @@ export function HeatMap({
           </span>
         </div>
 
-        <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
+        {/* <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
           Live GitHub Commit Feed
-        </p>
+        </p> */}
       </div>
     </div>
   );

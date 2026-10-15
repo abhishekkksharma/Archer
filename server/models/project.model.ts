@@ -16,6 +16,7 @@ export interface IProject extends Document {
   roadmapId?: mongoose.Types.ObjectId;
   architectureId?: mongoose.Types.ObjectId;
   projectLiveLink: string;
+  isPublished?:boolean;
   githubLink: string;
   createdAt: Date;
   updatedAt: Date;
@@ -93,6 +94,10 @@ const projectSchema = new Schema<IProject>(
       type: String,
       default: "",
     },
+    isPublished:{
+      type:Boolean,
+      default:false,
+    }
   },
   {
     timestamps: true,
