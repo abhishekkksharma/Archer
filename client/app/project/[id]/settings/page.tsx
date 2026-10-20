@@ -131,6 +131,8 @@ export default function ProjectSettingsPage() {
           projectType: type,
           experienceLevel,
           projectDescription: description,
+          githubLink,
+          projectLiveLink
         }),
       });
 
