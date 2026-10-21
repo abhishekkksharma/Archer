@@ -4,10 +4,9 @@ import Document from '@/components/Docs/Document'
 
 function page() {
   return (
-    <div className='min-h-screen flex justify-center items-center'>
+    <div className='min-h-screen w-full bg-white dark:bg-black'>
       <Navbar theme='light' />
       <Document />
-      {/* <p>Work in progress</p> */}
     </div>
   )
 }

@@ -16,11 +16,13 @@ html.dark {
    ================================ */
 
 html {
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: #d4d4d8 transparent;
 }
 
 html.dark {
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: #27272a #000000;
 }
